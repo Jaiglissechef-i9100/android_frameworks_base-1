@@ -7429,7 +7429,6 @@ public final class ActivityManagerService extends ActivityManagerNative
             ArrayList<ActivityStack> stacks = mStackSupervisor.getStacks();
             for (ActivityStack stack : stacks) {
                 TaskRecord r = stack.taskForIdLocked(task);
-
                 if (r != null && r.getTopActivity() != null) {
                     return r.getTopActivity().appToken;
                 } else {
@@ -7439,7 +7438,6 @@ public final class ActivityManagerService extends ActivityManagerNative
         }
         return null;
     }
-
 
     // =========================================================
     // THUMBNAILS
@@ -14382,6 +14380,26 @@ public final class ActivityManagerService extends ActivityManagerNative
             // And we need to make sure at this point that all other activities
             // are made visible with the correct configuration.
             mStackSupervisor.ensureActivitiesVisibleLocked(starting, changes);
+
+            if (mWindowManager.isTaskSplitView(starting.task.taskId)) {
+                Log.e("XPLOD", "Split view restoring task " + starting.task.taskId + " -- " + mIgnoreSplitViewUpdate.size());
+                ActivityRecord second = mainStack.topRunningActivityLocked(starting);
+                if (mWindowManager.isTaskSplitView(second.task.taskId)) {
+                    Log.e("XPLOD", "Split view restoring also task " + second.task.taskId);
+                    kept = kept && mainStack.ensureActivityConfigurationLocked(second, changes);
+                    mStackSupervisor.ensureActivitiesVisibleLocked(second, changes);
+                    if (mIgnoreSplitViewUpdate.contains(starting.task.taskId)) {
+                        Log.e("XPLOD", "Task "+ starting.task.taskId + " resuming ignored");
+                        mIgnoreSplitViewUpdate.removeAll(Collections.singleton((Integer) starting.task.taskId));
+                    } else {
+                        moveTaskToFront(second.task.taskId, 0, null);
+                        mIgnoreSplitViewUpdate.add(starting.task.taskId);
+                        mIgnoreSplitViewUpdate.add(second.task.taskId);
+                        mStackSupervisor.resumeTopActivitiesLocked();
+                        moveTaskToFront(starting.task.taskId, 0, null);
+                    }
+                }
+            }
         }
 
         if (values != null && mWindowManager != null) {
@@ -14390,6 +14408,8 @@ public final class ActivityManagerService extends ActivityManagerNative
 
         return kept;
     }
+
+    private ArrayList<Integer> mIgnoreSplitViewUpdate = new ArrayList<Integer>();
 
     /**
      * Decide based on the configuration whether we should shouw the ANR,

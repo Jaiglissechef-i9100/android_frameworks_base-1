@@ -5318,6 +5318,14 @@ public final class Settings {
          */
         public static final String PA_PIE_CHEVRON_RIGHT = "pa_pie_chevron_right";
 
+
+       /**
+         * HALO enabled, should default to 0 (HALO is disabled)
+         * @hide
+         */
+
+        public static final String HALO_ENABLED = "halo_enabled";
+
         /**
          * HALO, should default to 0 (no, do not show)
          * @hide

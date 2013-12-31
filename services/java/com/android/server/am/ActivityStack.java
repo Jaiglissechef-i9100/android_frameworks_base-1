@@ -81,12 +81,9 @@ import android.util.Log;
 import android.util.Slog;
 import android.view.ContextThemeWrapper;
 import android.view.Display;
-<<<<<<< HEAD
-=======
 import android.view.IWindowManager;
 import android.view.WindowManagerGlobal;
 import com.android.internal.app.ActivityTrigger;
->>>>>>> 0c4fc88... Multi-window support
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -1165,20 +1162,19 @@ final class ActivityStack {
                     // Aggregate current change flags.
                     configChanges |= r.configChangeFlags;
 
-<<<<<<< HEAD
-                    if (r.fullscreen && !r.floatingWindow) {
-=======
+		    int mHaloEnabled = (Settings.System.getInt(mContext.getContentResolver(), Settings.System.HALO_ENABLED, 0));
                     boolean isSplitView = false;
 
-                    try {
-                        IWindowManager wm = (IWindowManager) WindowManagerGlobal.getWindowManagerService();
-                        isSplitView = wm.isTaskSplitView(r.task.taskId);
-                    } catch (RemoteException e) {
-                        Slog.e(TAG, "Cannot get split view status", e);
-                    }
+		    if(mHaloEnabled != 1){
+		            try {
+		                IWindowManager wm = (IWindowManager) WindowManagerGlobal.getWindowManagerService();
+		                isSplitView = wm.isTaskSplitView(r.task.taskId);
+		            } catch (RemoteException e) {
+		                Slog.e(TAG, "Cannot get split view status", e);
+		            }
+		    }
 
-                    if (r.fullscreen && !isSplitView) {
->>>>>>> 0c4fc88... Multi-window support
+		    if (r.fullscreen && (!r.floatingWindow || !isSplitView)) {
                         // At this point, nothing else needs to be shown
                         if (DEBUG_VISBILITY) Slog.v(TAG, "Fullscreen: at " + r);
                         behindFullscreen = true;

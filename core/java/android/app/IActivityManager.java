@@ -412,6 +412,9 @@ public interface IActivityManager extends IInterface {
 
     public void performIdleMaintenance() throws RemoteException;
 
+    /* SPLIT VIEW */
+    public void notifySplitViewLayoutChanged() throws RemoteException;
+
     /*
      * Private non-Binder interfaces
      */
@@ -703,4 +706,5 @@ public interface IActivityManager extends IInterface {
 
     /* FLOAT VIEW */
     int GET_ACTIVITY_FOR_TASK_TRANSACTION = IBinder.FIRST_CALL_TRANSACTION+200;
+    int NOTIFY_SPLIT_VIEW_LAYOUT_CHANGED = IBinder.FIRST_CALL_TRANSACTION+201;
 }

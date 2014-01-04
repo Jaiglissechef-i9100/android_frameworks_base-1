@@ -2057,6 +2057,14 @@ public abstract class ActivityManagerNative extends Binder implements IActivityM
             reply.writeInt(res ? 1 : 0);
             return true;
         }
+
+        case NOTIFY_SPLIT_VIEW_LAYOUT_CHANGED: {
+            data.enforceInterface(IActivityManager.descriptor);
+            notifySplitViewLayoutChanged();
+            reply.writeNoException();
+            return true;
+        }
+
         }
 
         return super.onTransact(code, data, reply, flags);
@@ -4738,6 +4746,16 @@ class ActivityManagerProxy implements IActivityManager
         data.recycle();
         reply.recycle();
         return res == 1;
+    }
+
+    public void notifySplitViewLayoutChanged() throws RemoteException {
+        Parcel data = Parcel.obtain();
+        Parcel reply = Parcel.obtain();
+        data.writeInterfaceToken(IActivityManager.descriptor);
+        mRemote.transact(NOTIFY_SPLIT_VIEW_LAYOUT_CHANGED, data, reply, 0);
+        reply.readException();
+        data.recycle();
+        reply.recycle();
     }
 
     private IBinder mRemote;

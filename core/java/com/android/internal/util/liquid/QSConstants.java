@@ -64,9 +64,14 @@ public class QSConstants {
         //Key for custom tile additive
         public static final String TILE_CUSTOM_KEY = " Key=";
         public static final String TILE_CUSTOM_DELIMITER = " =action= ";
+<<<<<<< HEAD:core/java/com/android/internal/util/liquid/QSConstants.java
         public static final String TILE_ONTHEGO = "toggleOnTheGo";
         public static final String TILE_FCHARGE = "toggleFastCharge";
         public static final String TILE_BATTERYSAVER = "toggleBatterySaver";
+=======
+
+        public static final String TILE_WEATHER = "toogleweather";
+>>>>>>> 2f90308... Quick Settings: Weather tile:core/java/com/android/internal/util/ose/QSConstants.java
         public static final String TILE_DELIMITER = "|";
         public static ArrayList<String> TILES_DEFAULT = new ArrayList<String>();
 

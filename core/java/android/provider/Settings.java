@@ -3347,6 +3347,12 @@ public final class Settings {
         public static final String TILE_CONTACT_ACTIONS = "tile_contact_actions";
 
         /**
+         * Weather Tile Icon
+         * @hide
+         */
+        public static final String WEATHER_TILE_ICON = "weather_tile_icon";
+
+        /**
          * Reminder alert on / off
          * @hide
          */

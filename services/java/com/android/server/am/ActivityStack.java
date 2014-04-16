@@ -1163,7 +1163,7 @@ final class ActivityStack {
                     int mHaloEnabled = (Settings.System.getInt(mContext.getContentResolver(), Settings.System.HALO_ENABLED, 0));
                     boolean isSplitView = false;
 
-                    if(mHaloEnabled != 1){
+                    if(mHaloEnabled != 1) {
 		            try {
 		                IWindowManager wm = (IWindowManager) WindowManagerGlobal.getWindowManagerService();
 		                isSplitView = wm.isTaskSplitView(r.task.taskId);

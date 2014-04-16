@@ -42,6 +42,8 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -814,6 +816,7 @@ public class Activity extends ContextThemeWrapper
     private Float viewY ;
     private Float leftFromScreen ;
     private Float topFromScreen ;
+
     private int mCurrentScreenHeight;
     private int mCurrentScreenWidth;
     private int mPreviousOrientation;
@@ -1680,7 +1683,19 @@ public class Activity extends ContextThemeWrapper
             // Pass the configuration changed event to the window
             mWindow.onConfigurationChanged(newConfig);
             if (mWindow.mIsFloatingWindow) {
-                scaleFloatingWindow(null);
+                refreshAppLayoutSize();
+                Configuration config = getResources().getConfiguration();
+                if (config.orientation != mPreviousOrientation) {
+                    WindowManager.LayoutParams params = mWindow.getAttributes();
+                    final int old_x = params.x;
+                    final int old_y = params.y;
+                    params.x = old_y;
+                    params.y = old_x;
+                    params.width = mAppFloatViewWidth;
+                    params.height = mAppFloatViewHeight;
+                    mWindow.setAttributes(params);
+                    mPreviousOrientation = config.orientation;
+                }
             }
         }
 
@@ -2637,11 +2652,49 @@ public class Activity extends ContextThemeWrapper
      * @return boolean Return true if this event was consumed.
      */
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
-            onUserInteraction();
+        if (mWindow.mIsFloatingWindow) {
+            if (isUnSnap()) {
+                mScaleGestureDetector.onTouchEvent(ev);
+            }
+            int actionBarHeight = getActionBarHeight(false);
+            switch (ev.getAction()) {
+                  case MotionEvent.ACTION_DOWN:
+                       setTouchViewDown(ev.getX(), ev.getY());
+                       onUserInteraction();
+                       updateFocusApp();
+                       if (viewY < actionBarHeight) {
+                           if (!mChangedPreviousRange) {
+                               setPreviousTouchRange(ev.getRawX(), ev.getRawY());
+                               mChangedPreviousRange = true;
+                           }
+                       }
+                       break;
+                  case MotionEvent.ACTION_MOVE:
+                       if (viewY < actionBarHeight) {
+                           changeFlagsLayoutParams();
+                           setTouchViewMove(ev.getRawX(), ev.getRawY());
+                           if (mRestorePosition && moveRangeAboveLimit(ev)) {
+                               restoreOldPosition();
+                           }
+                           showSnap((int) ev.getRawX(), (int) ev.getRawY());
+                       }
+                       break;
+                  case MotionEvent.ACTION_UP:
+                       if (viewY < actionBarHeight) {
+                           mChangedFlags = false;
+                           finishSnap(isValidSnap() && mTimeoutDone);
+                           discardTimeout();
+                           mChangedPreviousRange = false;
+                       }
+                       break;
+             }
+        } else {
+             if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+                 onUserInteraction();
+             }
         }
 
-	int mHaloEnabled = (Settings.System.getInt(getContentResolver(), Settings.System.HALO_ENABLED, 0));
+        int mHaloEnabled = (Settings.System.getInt(getContentResolver(), Settings.System.HALO_ENABLED, 0));
 
         if (mIsSplitView && mHaloEnabled != 1) {
             IWindowManager wm = (IWindowManager) WindowManagerGlobal.getWindowManagerService();
@@ -5936,46 +5989,42 @@ public class Activity extends ContextThemeWrapper
             // Create our new window
             mWindow = PolicyManager.makeNewWindow(this);
             mWindow.mIsFloatingWindow = true;
-            mWindow.setCloseOnTouchOutsideIfNotSet(true);
-            mWindow.setGravity(Gravity.CENTER);
+            if (!isAlreadyAttachToWindow) {
+                isAlreadyAttachToWindow = true;
+                mWindow.setCloseOnTouchOutsideIfNotSet(true);
+                mWindow.setGravity(Gravity.CENTER);
+                // Scale it
+                scaleFloatingWindow();
+            }
 
-            if (this instanceof LayerActivity || android.os.Process.myUid() == android.os.Process.SYSTEM_UID) {
+            WindowManager.LayoutParams params = mWindow.getAttributes();
+            params.privateFlags |= WindowManager.LayoutParams.PRIVATE_FLAG_NO_MOVE_ANIMATION;
+            if (android.os.Process.myUid() == android.os.Process.SYSTEM_UID) {
                 mWindow.setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
                         WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-                WindowManager.LayoutParams params = mWindow.getAttributes();
                 params.alpha = 1f;
                 params.dimAmount = 0.25f;
                 mWindow.setAttributes((android.view.WindowManager.LayoutParams) params);
             }
+            mWindow.setAttributes(params);
 
-            // Scale it
-            scaleFloatingWindow(context);
-
+            refreshAppLayoutSize();
             return true;
         } else {
             mWindow = PolicyManager.makeNewWindow(this);
-
             return false;
         }
     }
 
-    private void scaleFloatingWindow(Context context) {
-        if (!mWindow.mIsFloatingWindow) {
-            return;
-        }
-        WindowManager wm = null;
-        if (context != null) {
-            wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        } else {
-            wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-        }
-        Display display = wm.getDefaultDisplay();
-        DisplayMetrics metrics = new DisplayMetrics();
-        display.getMetrics(metrics);
-        if (metrics.heightPixels > metrics.widthPixels) {
-            mWindow.setLayout((int)(metrics.widthPixels * 0.9f), (int)(metrics.heightPixels * 0.7f));
-        } else {
-            mWindow.setLayout((int)(metrics.widthPixels * 0.7f), (int)(metrics.heightPixels * 0.8f));
+    private void scaleFloatingWindow() {
+        final IWindowManager wm = (IWindowManager) WindowManagerGlobal.getWindowManagerService();
+
+        try {
+            Rect windowBounds = wm.getFloatViewRect();
+            mWindow.setLayout(windowBounds.right - windowBounds.left,
+                    windowBounds.bottom - windowBounds.top);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Could not perform float view layout", e);
         }
     }
 

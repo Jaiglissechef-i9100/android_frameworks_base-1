@@ -16,6 +16,7 @@
 
 package com.android.systemui.statusbar.phone;
 
+<<<<<<< HEAD
 import static com.android.internal.util.liquid.QSConstants.TILES_DEFAULT;
 import static com.android.internal.util.liquid.QSConstants.DYNAMIC_TILES_DEFAULT;
 import static com.android.internal.util.liquid.QSConstants.TILE_AIRPLANE;
@@ -61,6 +62,7 @@ import static com.android.internal.util.liquid.QSConstants.TILE_FCHARGE;
 import static com.android.internal.util.liquid.QSConstants.TILE_PROFILE;
 import static com.android.internal.util.liquid.QSConstants.TILE_HOVER;
 import static com.android.internal.util.liquid.QSConstants.TILE_REMOTEDISPLAY;
+import static com.android.internal.util.liquid.QSConstants.TILE_EQUALIZER;
 
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -90,6 +92,7 @@ import com.android.systemui.quicksettings.BugReportTile;
 import com.android.systemui.quicksettings.CompassTile;
 import com.android.systemui.quicksettings.ContactTile;
 import com.android.systemui.quicksettings.CustomTile;
+import com.android.systemui.quicksettings.EqualizerTile;
 import com.android.systemui.quicksettings.ExpandedDesktopTile;
 import com.android.systemui.quicksettings.LocationTile;
 import com.android.systemui.quicksettings.InputMethodTile;
@@ -320,6 +323,8 @@ public class QuickSettingsController {
                 qs = new AlarmTile(mContext, this, mHandler);
             } else if (tile.equals(TILE_BUGREPORT)) {
                 qs = new BugReportTile(mContext, this, mHandler);
+            } else if (tile.equals(TILE_EQUALIZER)) {
+                qs = new EqualizerTile(mContext, this);
             } else if (tile.equals(TILE_IMESWITCHER)
                     && DeviceUtils.deviceSupportsImeSwitcher(mContext)) {
                 qs = new InputMethodTile(mContext, this);
@@ -476,4 +481,17 @@ public class QuickSettingsController {
             t.updateResources();
         }
     }
+
+    public void onSettingsHidden() {
+        for (QuickSettingsTile t : mQuickSettingsTiles) {
+            t.onSettingsHidden();
+        }
+    }
+
+    public void onSettingsVisible() {
+        for (QuickSettingsTile t : mQuickSettingsTiles) {
+            t.onSettingsVisible();
+        }
+    }
+
 }

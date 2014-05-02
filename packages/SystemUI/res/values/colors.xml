@@ -105,4 +105,8 @@
     <color name="battery_juice_critical">#ff4444</color>
     <color name="battery_background">#ffffff</color>
     <color name="status">#ffffff</color>
+
+    <!-- Color for the Equalizer tile -->
+    <color name="equalizer_fill_color">#96FFFFFF</color>
+
 </resources>

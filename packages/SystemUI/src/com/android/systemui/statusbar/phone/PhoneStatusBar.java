@@ -1667,16 +1667,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                     mSettingsPanel = (SettingsPanelView) mStatusBarWindow.findViewById(R.id.settings_panel);
                 }
                 if (mSettingsPanel != null) {
-                    if (!ActivityManager.isHighEndGfx()) {
-                        mSettingsPanel.setBackground(new FastColorDrawable(context.getResources().getColor(
-                                R.color.notification_panel_solid_background)));
-                    }
+                    mSettingsPanel.setStatusBar(this);
                 }
-            }
-
-            if (mQS != null) {
-                mQS.shutdown();
-                mQS = null;
             }
 
             // wherever you find it, Quick Settings needs a container to survive

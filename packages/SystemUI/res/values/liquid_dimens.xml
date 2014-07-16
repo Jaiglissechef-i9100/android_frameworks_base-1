@@ -120,4 +120,8 @@
     <dimen name="pie_item_size">40dp</dimen>
     <dimen name="pie_panel_padding">20dp</dimen>
 
+    <dimen name="shadow_width">8dp</dimen>
+    <dimen name="layer_width">300dp</dimen>
+    <dimen name="offset_width">48dp</dimen>
+
 </resources>

@@ -3453,6 +3453,12 @@ public final class Settings {
         public static final String EXPANDED_RING_MODE = "expanded_ring_mode";
 
         /**
+         * Whether enabled PackageInstaller Quick Mode
+         * @hide
+         */
+        public static final String PACKAGE_INSTALLER_QUICK_MODE_ENABLED = "package_installer_quick_mode_enabled";
+
+        /**
          * Quick Settings Quick Pulldown
          *
          * @hide

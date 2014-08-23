@@ -394,6 +394,24 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                             return false;
                         }
                     });
+	    // next: screenrecord
+            } else if (config.getClickAction().equals(PolicyConstants.ACTION_SCREENRECORD)) {
+            mItems.add(
+                    new SinglePressAction(PolicyHelper.getPowerMenuIconImage(mContext,
+                            config.getClickAction(), config.getIcon(), true),
+                            config.getClickActionDescription()) {
+                    public void onPress() {
+                        toggleScreenRecord();
+                    }
+
+                    public boolean showDuringKeyguard() {
+                        return true;
+                    }
+
+                    public boolean showBeforeProvisioning() {
+                        return true;
+                    }
+                });
             // screenshot
             } else if (config.getClickAction().equals(PolicyConstants.ACTION_SCREENSHOT)) {
                 mItems.add(

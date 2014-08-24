@@ -372,28 +372,28 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                             return true;
                         }
                     });
-            // next: profile - only shown if enabled, which is true by default
-            } else if (config.getClickAction().equals(PolicyConstants.ACTION_PROFILES)) {
+            // CyanogenMod profiles
+            } else if (config.getClickAction().equals(PolicyConstants.ACTION_PROFILE)) {
                 mItems.add(
-                    new ProfileChooseAction() {
-                        public void onPress() {
-                            if (Settings.System.getInt(mContext.getContentResolver(), SYSTEM_PROFILES_ENABLED, 1) == 1) {
-                                createProfileDialog();
-                            }
-                        }
+                    new SinglePressAction(PolicyHelper.getPowerMenuIconImage(mContext,
+                            config.getClickAction(), config.getIcon(), true),
+                            config.getClickActionDescription()) {
+                    public void onPress() {
+                        createProfileDialog();
+                    }
 
-                        public boolean onLongPress() {
-                            return true;
-                        }
+                    public boolean onLongPress() {
+                        return true;
+                    }
 
-                        public boolean showDuringKeyguard() {
-                            return false;
-                        }
+                    public boolean showDuringKeyguard() {
+                        return false;
+                    }
 
-                        public boolean showBeforeProvisioning() {
-                            return false;
-                        }
-                    });
+                    public boolean showBeforeProvisioning() {
+                        return false;
+                    }
+                });
 	    // next: screenrecord
             } else if (config.getClickAction().equals(PolicyConstants.ACTION_SCREENRECORD)) {
             mItems.add(
@@ -621,7 +621,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 checkedItem = i;
                 mChosenProfile = profile;
             }
-            names[i++] = profile.getName();
+           names[i++] = profile.getName();
         }
 
         final AlertDialog.Builder ab = new AlertDialog.Builder(mContext);
@@ -963,39 +963,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 messageView.setText(mMessageResId);
             }
             messageView.setTextColor(mTextColor);
-
-            return v;
-        }
-    }
-
-    /**
-     * A single press action maintains no state, just responds to a press
-     * and takes an action.
-     */
-    private abstract class ProfileChooseAction implements Action {
-        private ProfileManager mProfileManager;
-
-        protected ProfileChooseAction() {
-            mProfileManager = (ProfileManager)mContext.getSystemService(Context.PROFILE_SERVICE);
-        }
-
-        public boolean isEnabled() {
-            return true;
-        }
-
-        abstract public void onPress();
-
-        public View create(Context context, View convertView, ViewGroup parent, LayoutInflater inflater) {
-            View v = inflater.inflate(R.layout.global_actions_item, parent, false);
-
-            ImageView icon = (ImageView) v.findViewById(R.id.icon);
-            TextView messageView = (TextView) v.findViewById(R.id.message);
-            TextView statusView = (TextView) v.findViewById(R.id.status);
-            statusView.setVisibility(View.VISIBLE);
-            statusView.setText(mProfileManager.getActiveProfile().getName());
-
-            icon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_lock_profile));
-            messageView.setText(R.string.global_action_choose_profile);
 
             return v;
         }

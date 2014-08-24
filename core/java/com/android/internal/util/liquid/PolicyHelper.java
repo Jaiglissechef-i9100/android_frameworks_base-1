@@ -200,6 +200,12 @@ public class PolicyHelper {
         } else if (clickAction.equals(PolicyConstants.ACTION_NAVBAR)) {
             return context.getResources().getDrawable(
                 com.android.internal.R.drawable.ic_lock_navbar);
+        } else if (clickAction.equals(PolicyConstants.ACTION_SCREENRECORD)) {
+            return context.getResources().getDrawable(
+                com.android.internal.R.drawable.ic_lock_screenrecord);
+        } else if (clickAction.equals(PolicyConstants.ACTION_PROFILE)) {
+            return context.getResources().getDrawable(
+                com.android.internal.R.drawable.ic_lock_profile);
         }
         return null;
     }

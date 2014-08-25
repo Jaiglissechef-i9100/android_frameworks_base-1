@@ -80,14 +80,16 @@ public class PieMenu extends FrameLayout {
     private static int ANIMATOR_END = ANIMATOR_SNAP_GROW;
 
     private static final int COLOR_OPAQUE_MASK = 0xff000000;
-    private static final int COLOR_SNAP_BACKGROUND = 0xffffffff;
-    private static final int COLOR_PIE_BACKGROUND = 0xaa000000;
+    private static final int COLOR_SNAP_BACKGROUND = 0xffffff;
+    private static final int COLOR_PIE_BACKGROUND = 0xaaff005e;
     private static final int COLOR_PIE_BUTTON = 0xb2ffffff;
-    private static final int COLOR_PIE_SELECT = 0xaaffffff;
+    private static final int COLOR_PIE_SELECT = 0xaadbff00;
     private static final int COLOR_PIE_OUTLINES = 0x55ffffff;
-    private static final int COLOR_CHEVRON_LEFT = 0x0999cc;
+    private static final int COLOR_CHEVRON_LEFT = 0xffffff;
     private static final int COLOR_CHEVRON_RIGHT = 0xffffff;
     private static final int COLOR_BATTERY_JUICE = 0xffffff;
+    private static final int COLOR_BATTERY_JUICE_LOW = 0xffbb33;
+    private static final int COLOR_BATTERY_JUICE_CRITICAL = 0xff4444;
     private static final int COLOR_BATTERY_BACKGROUND = 0xffffff;
     private static final int COLOR_STATUS = 0xffffff;
     private static final int BASE_SPEED = 500;
@@ -199,6 +201,11 @@ public class PieMenu extends FrameLayout {
     private boolean mEnableColor;
     private boolean mUseMenuAlways;
     private boolean mUseSearch;
+    private boolean mUseLastApp;
+    private boolean mUseKillTask;
+    private boolean mUseTorch;
+    private boolean mUseActNotif;
+    private boolean mUsePower;
     private boolean mHapticFeedback;
 
     // Animations
@@ -247,7 +254,17 @@ public class PieMenu extends FrameLayout {
         mUseMenuAlways = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.PA_PIE_MENU, 1) == 1;
         mUseSearch = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.PA_PIE_SEARCH, 1) == 1;
+                Settings.System.PA_PIE_SEARCH, 0) == 1;
+        mUseLastApp = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.PA_PIE_LAST_APP, 0) == 1;
+        mUseKillTask = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.PA_PIE_KILL_TASK, 0) == 1;
+        mUseTorch = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.PA_PIE_TORCH, 0) == 1;
+        mUseActNotif = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.PA_PIE_ACT_NOTIF, 0) == 1;
+        mUsePower = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.PA_PIE_POWER, 0) == 1;
         mStatusMode = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.PA_PIE_MODE, 2);
         mPieSize = Settings.System.getFloat(mContext.getContentResolver(),
@@ -664,9 +681,14 @@ public class PieMenu extends FrameLayout {
     }
 
     private boolean canItemDisplay(PieItem item) {
-        return !(item.getName().equals(PieControl.MENU_BUTTON) && !mPanel.currentAppUsesMenu() && !mUseMenuAlways)
-                &&
-                !(item.getName().equals(PieControl.SEARCH_BUTTON) && !mUseSearch);
+        return !(item.getName().equals(PieControl.MENU_BUTTON) && !mPanel.currentAppUsesMenu()
+                        && !mUseMenuAlways) &&
+               !(item.getName().equals(PieControl.SEARCH_BUTTON) && !mUseSearch) &&
+               !(item.getName().equals(PieControl.ACT_NOTIF_BUTTON) && !mUseActNotif) &&
+               !(item.getName().equals(PieControl.TORCH_BUTTON) && !mUseTorch) &&
+               !(item.getName().equals(PieControl.KILL_TASK_BUTTON) && !mUseKillTask) &&
+               !(item.getName().equals(PieControl.LAST_APP_BUTTON) && !mUseLastApp) &&
+               !(item.getName().equals(PieControl.POWER_BUTTON) && !mUsePower);
     }
 
     private void layoutPie() {
@@ -678,6 +700,16 @@ public class PieMenu extends FrameLayout {
         if (!mPanel.currentAppUsesMenu() && !mUseMenuAlways)
             itemCount--;
         if (!mUseSearch)
+            itemCount--;
+        if (!mUseActNotif)
+            itemCount--;
+        if (!mUseLastApp)
+            itemCount--;
+        if (!mUseTorch)
+            itemCount--;
+        if (!mUseKillTask)
+            itemCount--;
+        if (!mUsePower)
             itemCount--;
 
         int lesserSweepCount = 0;

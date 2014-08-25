@@ -93,12 +93,12 @@
 
     <color name="alpha_mask">#aa000000</color>
     <color name="opaque_mask">#ff000000</color>
-    <color name="snap_background">#ffffffff</color>
-    <color name="pie_background">#aa333333</color>
+    <color name="snap_background">#ffffff</color>
+    <color name="pie_background">#aaff005e</color>
     <color name="pie_button">#b2ffffff</color>
-    <color name="pie_select">#aaffffff</color>
-    <color name="pie_outlines">#ffffffff</color>
-    <color name="chevron_left">#0999cc</color>
+    <color name="pie_select">#aadbff00</color>
+    <color name="pie_outlines">#55ffffff</color>
+    <color name="chevron_left">#ffffff</color>
     <color name="chevron_right">#ffffff</color>
     <color name="battery_juice">#ffffff</color>
     <color name="battery_juice_low">#ffbb33</color>

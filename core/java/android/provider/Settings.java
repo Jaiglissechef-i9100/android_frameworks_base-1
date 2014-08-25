@@ -5318,6 +5318,35 @@ public final class Settings {
          */
         public static final String PA_PIE_CHEVRON_RIGHT = "pa_pie_chevron_right";
 
+        /**
+         * Pie last app, should default to 0 (no, show only when needed)
+         * @hide
+         */
+        public static final String PA_PIE_LAST_APP = "pa_pie_last_app";
+
+        /**
+         * Pie kill task, default to 0 (off)
+         * @hide
+         */
+        public static final String PA_PIE_KILL_TASK = "pa_pie_kill_task";
+
+        /**
+         * Pie toggles omni torch
+         * @hide
+         */
+        public static final String PA_PIE_TORCH = "pa_pie_torch";
+
+        /**
+         * Pie action notifications, default to off
+         * @hide
+         */
+        public static final String PA_PIE_ACT_NOTIF = "pa_pie_act_notif";
+
+        /**
+         * Pie power, should default to 0 (no, show only when needed)
+         * @hide
+         */
+        public static final String PA_PIE_POWER = "pa_pie_power";
 
        /**
          * HALO enabled, should default to 0 (HALO is disabled)

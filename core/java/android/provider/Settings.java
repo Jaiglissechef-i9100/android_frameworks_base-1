@@ -5348,6 +5348,12 @@ public final class Settings {
          */
         public static final String PA_PIE_POWER = "pa_pie_power";
 
+        /**
+         * Pie screenshot
+         * @hide
+         */
+        public static final String PA_PIE_SCREENSHOT = "pa_pie_screenshot";
+
        /**
          * HALO enabled, should default to 0 (HALO is disabled)
          * @hide

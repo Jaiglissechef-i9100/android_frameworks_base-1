@@ -41,6 +41,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.ContentObserver;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.Manifest;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -638,6 +639,11 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                 }).create();
         dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG);
         dialog.show();
+    }
+
+    private void toggleScreenRecord() {
+        final Intent recordIntent = new Intent("org.chameleonos.action.NOTIFY_RECORD_SERVICE");
+        mContext.sendBroadcast(recordIntent, Manifest.permission.RECORD_SCREEN);
     }
 
     private void constructNavBarToggle(Drawable icon, String description) {

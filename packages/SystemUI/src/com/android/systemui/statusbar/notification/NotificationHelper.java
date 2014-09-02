@@ -191,20 +191,16 @@ public class NotificationHelper {
         return intent;
     }
 
-    public NotificationClicker getNotificationClickListenerForHalo(Entry entry) {
-        NotificationClicker intent = null;
-        final PendingIntent contentIntent = entry.notification.getNotification().contentIntent;
-        if (contentIntent != null) {
-            intent = mStatusBar.makeClicker(contentIntent,
-                    entry.notification.getPackageName(), entry.notification.getTag(),
-                    entry.notification.getId());
-            boolean makeFloating =
-                    // if the notification is from the foreground app, don't open in floating mode
-                    !entry.notification.getPackageName().equals(getForegroundPackageName());
+    public boolean isUserOnLauncher() {
+        // Get default launcher name
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        ResolveInfo resolveInfo = mContext.getPackageManager().resolveActivity(intent,
+                                              PackageManager.MATCH_DEFAULT_ONLY);
+        String currentHomePackage = resolveInfo.activityInfo.packageName;
 
-            intent.makeFloating(makeFloating);
-        }
-        return intent;
+        // compare and return result
+        return getForegroundPackageName().equals(currentHomePackage);
     }
 
     public void applyStyle(SizeAdaptiveLayout layout, int style) {

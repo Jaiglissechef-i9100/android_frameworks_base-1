@@ -2638,9 +2638,6 @@ public class Activity extends ContextThemeWrapper
         return onKeyShortcut(event.getKeyCode(), event);
     }
 
-    boolean scaleW, scaleH, move;
-    Point lastPos;
-
     /**
      * Called to process touch screen events.  You can override this to
      * intercept all touch screen events before they are dispatched to the
@@ -2652,46 +2649,8 @@ public class Activity extends ContextThemeWrapper
      * @return boolean Return true if this event was consumed.
      */
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (mWindow.mIsFloatingWindow) {
-            if (isUnSnap()) {
-                mScaleGestureDetector.onTouchEvent(ev);
-            }
-            int actionBarHeight = getActionBarHeight(false);
-            switch (ev.getAction()) {
-                  case MotionEvent.ACTION_DOWN:
-                       setTouchViewDown(ev.getX(), ev.getY());
-                       onUserInteraction();
-                       updateFocusApp();
-                       if (viewY < actionBarHeight) {
-                           if (!mChangedPreviousRange) {
-                               setPreviousTouchRange(ev.getRawX(), ev.getRawY());
-                               mChangedPreviousRange = true;
-                           }
-                       }
-                       break;
-                  case MotionEvent.ACTION_MOVE:
-                       if (viewY < actionBarHeight) {
-                           changeFlagsLayoutParams();
-                           setTouchViewMove(ev.getRawX(), ev.getRawY());
-                           if (mRestorePosition && moveRangeAboveLimit(ev)) {
-                               restoreOldPosition();
-                           }
-                           showSnap((int) ev.getRawX(), (int) ev.getRawY());
-                       }
-                       break;
-                  case MotionEvent.ACTION_UP:
-                       if (viewY < actionBarHeight) {
-                           mChangedFlags = false;
-                           finishSnap(isValidSnap() && mTimeoutDone);
-                           discardTimeout();
-                           mChangedPreviousRange = false;
-                       }
-                       break;
-             }
-        } else {
-             if (ev.getAction() == MotionEvent.ACTION_DOWN) {
-                 onUserInteraction();
-             }
+        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+            onUserInteraction();
         }
 
         if (getWindow().superDispatchTouchEvent(ev)) {
@@ -5976,21 +5935,20 @@ public class Activity extends ContextThemeWrapper
             // Create our new window
             mWindow = PolicyManager.makeNewWindow(this);
             mWindow.mIsFloatingWindow = true;
-            if (!isAlreadyAttachToWindow) {
-                isAlreadyAttachToWindow = true;
-                mWindow.setCloseOnTouchOutsideIfNotSet(false);
-                mWindow.setGravity(Gravity.CENTER);
-                // Scale it
-                scaleFloatingWindow();
+            mWindow.setCloseOnTouchOutsideIfNotSet(true);
+            mWindow.setGravity(Gravity.CENTER);
+
+            if (android.os.Process.myUid() == android.os.Process.SYSTEM_UID) {
+                mWindow.setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
+                        WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+                WindowManager.LayoutParams params = mWindow.getAttributes();
+                params.alpha = 1f;
+                params.dimAmount = 0.25f;
+                mWindow.setAttributes((android.view.WindowManager.LayoutParams) params);
             }
 
-            mWindow.setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
-                    WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-            WindowManager.LayoutParams params = mWindow.getAttributes();
-            params.alpha = 1f;
-            params.dimAmount = 0.5f;
-            mWindow.setAttributes((WindowManager.LayoutParams) params);
-
+            // Scale it
+            scaleFloatingWindow(context);
             refreshAppLayoutSize();
             return true;
         } else {
@@ -6008,6 +5966,15 @@ public class Activity extends ContextThemeWrapper
                     windowBounds.bottom - windowBounds.top);
         } catch (RemoteException e) {
             Log.e(TAG, "Could not perform float view layout", e);
+        }
+
+        Display display = wm.getDefaultDisplay();
+        DisplayMetrics metrics = new DisplayMetrics();
+        display.getMetrics(metrics);
+        if (metrics.heightPixels > metrics.widthPixels) {
+            mWindow.setLayout((int)(metrics.widthPixels * 0.9f), (int)(metrics.heightPixels * 0.7f));
+        } else {
+            mWindow.setLayout((int)(metrics.widthPixels * 0.7f), (int)(metrics.heightPixels * 0.8f));
         }
     }
 

@@ -61,18 +61,14 @@ import android.text.TextUtils;
 import android.text.method.TextKeyListener;
 import android.util.AttributeSet;
 import android.util.EventLog;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.PrintWriterPrinter;
-import android.util.TypedValue;
 import android.util.Slog;
 import android.util.SparseArray;
 import android.view.ActionMode;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.ContextThemeWrapper;
-import android.view.Display;
-import android.view.Gravity;
 import android.view.IWindowManager;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -1679,21 +1675,6 @@ public class Activity extends ContextThemeWrapper
         if (mWindow != null) {
             // Pass the configuration changed event to the window
             mWindow.onConfigurationChanged(newConfig);
-            if (mWindow.mIsFloatingWindow) {
-                refreshAppLayoutSize();
-                Configuration config = getResources().getConfiguration();
-                if (config.orientation != mPreviousOrientation) {
-                    WindowManager.LayoutParams params = mWindow.getAttributes();
-                    final int old_x = params.x;
-                    final int old_y = params.y;
-                    params.x = old_y;
-                    params.y = old_x;
-                    params.width = mAppFloatViewWidth;
-                    params.height = mAppFloatViewHeight;
-                    mWindow.setAttributes(params);
-                    mPreviousOrientation = config.orientation;
-                }
-            }
         }
 
         if (mActionBar != null) {
@@ -4906,15 +4887,6 @@ public class Activity extends ContextThemeWrapper
     }
 
     /**
-     * Hide from public api
-     * @hide
-     */
-    public void finishFloating() {
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-        mMainThread.performFinishFloating();
-    }
-
-    /**
      * Finish this activity as well as all activities immediately below it
      * in the current task that have the same affinity.  This is typically
      * used when an application can be launched on to another task (such as
@@ -5876,10 +5848,7 @@ public class Activity extends ContextThemeWrapper
 
         mFragments.attachActivity(this, mContainer, null);
         
-        if (makeNewWindow(context, intent, info)) {
-            parent = null;
-        }
-
+        mWindow = PolicyManager.makeNewWindow(this);
         mWindow.setCallback(this);
         mWindow.getLayoutInflater().setPrivateFactory(this);
         if (info.softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED) {
@@ -5912,70 +5881,6 @@ public class Activity extends ContextThemeWrapper
         }
         mWindowManager = mWindow.getWindowManager();
         mCurrentConfig = config;
-    }
-
-    private boolean makeNewWindow(Context context, Intent intent, ActivityInfo info) {
-        boolean floating = (intent.getFlags() & Intent.FLAG_FLOATING_WINDOW) == Intent.FLAG_FLOATING_WINDOW;
-        boolean history = (intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY;
-        if (intent != null && floating && !history) {
-
-            TypedArray styleArray = context.obtainStyledAttributes(info.theme, com.android.internal.R.styleable.Window);
-            TypedValue backgroundValue = styleArray.peekValue(com.android.internal.R.styleable.Window_windowBackground);
-
-            // Apps that have no title don't need no title bar
-            TypedValue outValue = new TypedValue();
-            boolean result = styleArray.getValue(com.android.internal.R.styleable.Window_windowNoTitle, outValue);
-
-            if (backgroundValue != null && backgroundValue.toString().contains("light")) {
-                context.getTheme().applyStyle(com.android.internal.R.style.Theme_DeviceDefault_FloatingWindowLight, true);
-            } else {
-                context.getTheme().applyStyle(com.android.internal.R.style.Theme_DeviceDefault_FloatingWindow, true);
-            }
-
-            // Create our new window
-            mWindow = PolicyManager.makeNewWindow(this);
-            mWindow.mIsFloatingWindow = true;
-            mWindow.setCloseOnTouchOutsideIfNotSet(true);
-            mWindow.setGravity(Gravity.CENTER);
-
-            if (android.os.Process.myUid() == android.os.Process.SYSTEM_UID) {
-                mWindow.setFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND,
-                        WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-                WindowManager.LayoutParams params = mWindow.getAttributes();
-                params.alpha = 1f;
-                params.dimAmount = 0.25f;
-                mWindow.setAttributes((android.view.WindowManager.LayoutParams) params);
-            }
-
-            // Scale it
-            scaleFloatingWindow(context);
-            refreshAppLayoutSize();
-            return true;
-        } else {
-            mWindow = PolicyManager.makeNewWindow(this);
-            return false;
-        }
-    }
-
-    private void scaleFloatingWindow() {
-        final IWindowManager wm = (IWindowManager) WindowManagerGlobal.getWindowManagerService();
-
-        try {
-            Rect windowBounds = wm.getFloatViewRect();
-            mWindow.setLayout(windowBounds.right - windowBounds.left,
-                    windowBounds.bottom - windowBounds.top);
-        } catch (RemoteException e) {
-            Log.e(TAG, "Could not perform float view layout", e);
-        }
-
-        Display display = wm.getDefaultDisplay();
-        DisplayMetrics metrics = new DisplayMetrics();
-        display.getMetrics(metrics);
-        if (metrics.heightPixels > metrics.widthPixels) {
-            mWindow.setLayout((int)(metrics.widthPixels * 0.9f), (int)(metrics.heightPixels * 0.7f));
-        } else {
-            mWindow.setLayout((int)(metrics.widthPixels * 0.7f), (int)(metrics.heightPixels * 0.8f));
-        }
     }
 
     /** @hide */
@@ -6150,14 +6055,6 @@ public class Activity extends ContextThemeWrapper
             mStopped = true;
         }
         mResumed = false;
-
-        // Floatingwindows activities should be kept volatile to prevent new activities taking
-        // up front in a minimized space. Every stop call, for instance when pressing home,
-        // will terminate the activity. If the activity is already finishing we might just
-        // as well let it go.
-        if (!mChangingConfigurations && mWindow != null && mWindow.mIsFloatingWindow && !isFinishing()) {
-            finish();
-        }
     }
 
     final void performDestroy() {

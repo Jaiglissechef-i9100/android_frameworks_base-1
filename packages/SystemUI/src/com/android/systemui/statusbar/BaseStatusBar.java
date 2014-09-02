@@ -40,19 +40,11 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.content.ServiceConnection;
 import android.content.res.ThemeConfig;
 import android.database.ContentObserver;
 import android.graphics.PixelFormat;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.PorterDuff.Mode;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -94,7 +86,6 @@ import android.widget.Toast;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.statusbar.StatusBarIcon;
 import com.android.internal.statusbar.StatusBarIconList;
-import com.android.systemui.statusbar.phone.Ticker;
 import com.android.internal.widget.SizeAdaptiveLayout;
 import com.android.internal.util.liquid.ButtonConfig;
 import com.android.internal.util.liquid.DeviceUtils;
@@ -104,7 +95,6 @@ import com.android.systemui.SearchPanelView;
 import com.android.systemui.SystemUI;
 import com.android.systemui.slimrecent.RecentController;
 import com.android.systemui.statusbar.phone.KeyguardTouchDelegate;
-import com.android.systemui.statusbar.halo.Halo;
 import com.android.systemui.statusbar.phone.NavigationBarOverlay;
 import com.android.systemui.statusbar.notification.Hover;
 import com.android.systemui.statusbar.notification.HoverCling;
@@ -197,15 +187,6 @@ public abstract class BaseStatusBar extends SystemUI implements
     PowerManager mPowerManager;
     protected int mRowHeight;
 
-    // Halo
-    protected Halo mHalo = null;
-    protected Ticker mTicker;
-    protected boolean mHaloEnabled;
-    protected boolean mHaloActive;
-    public boolean mHaloTaskerActive = false;
-    protected ImageView mHaloButton;
-    protected boolean mHaloButtonVisible = true;
-
     private Runnable mPanelCollapseRunnable = new Runnable() {
         @Override
         public void run() {
@@ -287,18 +268,6 @@ public abstract class BaseStatusBar extends SystemUI implements
     protected GestureAnywhereView mGestureAnywhereView;
 
     private boolean mCustomRecent = false;
-
-    public Ticker getTicker() {
-        return mTicker;
-    }
-
-    public IStatusBarService getService() {
-        return mBarService;
-    }
-
-    public NotificationData getNotificationData() {
-        return mNotificationData;
-    }
 
     public INotificationManager getNotificationManager() {
         return mNotificationManager;
@@ -450,13 +419,6 @@ public abstract class BaseStatusBar extends SystemUI implements
             // If the system process isn't there we're doomed anyway.
         }
 
-        // HALO Listener
-        mHaloEnabled = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.HALO_ENABLED, 0) == 1;
-
-        mHaloActive = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.HALO_ACTIVE, 0) == 1;
-
         createAndAddWindows();
 
         disable(switches[0]);
@@ -509,30 +471,7 @@ public abstract class BaseStatusBar extends SystemUI implements
 
         pieOnStart();
 
-        // Listen for HALO enabled
-
-        mContext.getContentResolver().registerContentObserver(
-                Settings.System.getUriFor(Settings.System.HALO_ENABLED), false, new ContentObserver(new Handler()) {
-            @Override
-            public void onChange(boolean selfChange) {
-                updateHalo();
-            }});
-
-        // Listen for HALO state
-        mContext.getContentResolver().registerContentObserver(
-                Settings.System.getUriFor(Settings.System.HALO_ACTIVE), false, new ContentObserver(new Handler()) {
-            @Override
-            public void onChange(boolean selfChange) {
-                updateHalo();
-            }});
-
-        mContext.getContentResolver().registerContentObserver(
-                Settings.System.getUriFor(Settings.System.HALO_SIZE), false, new ContentObserver(new Handler()) {
-            @Override
-            public void onChange(boolean selfChange) {
-                restartHalo();
-            }});
-
+        //HOVER
         mContext.getContentResolver().registerContentObserver(
                 Settings.System.getUriFor(Settings.System.HOVER_ACTIVE),
                         false, new ContentObserver(new Handler()) {
@@ -559,16 +498,9 @@ public abstract class BaseStatusBar extends SystemUI implements
                 updateHoverActive();
             }});
 
-        updateHalo();
         updateHoverActive();
     }
 
-    public void setHaloTaskerActive(boolean haloTaskerActive, boolean updateNotificationIcons) {
-        mHaloTaskerActive = haloTaskerActive;
-        if (updateNotificationIcons) {
-            updateNotificationIcons();
-        }
-    }
 
     public NotificationHelper getNotificationHelperInstance() {
         if (mNotificationHelper == null) mNotificationHelper = new NotificationHelper(this, mContext);
@@ -589,58 +521,6 @@ public abstract class BaseStatusBar extends SystemUI implements
         if (mPowerManager == null) mPowerManager
                 = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
         return mPowerManager;
-    }
-
-    protected void updateHaloButton() {
-        if (!mHaloEnabled) {
-            mHaloButtonVisible = false;
-        } else {
-            mHaloButtonVisible = true;
-        }
-        if (mHaloButton != null) {
-            mHaloButton.setVisibility(mHaloButtonVisible && !mHaloActive ? View.VISIBLE : View.GONE);
-        }
-    }
-
-    public void restartHalo() {
-        if (mHalo != null) {
-            mHalo.cleanUp();
-            mWindowManager.removeView(mHalo);
-            mHalo = null;
-        }
-        updateNotificationIcons();
-        updateHalo();
-    }
-
-    public void updateHalo() {
-        mHaloEnabled = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.HALO_ENABLED, 0) == 1;
-        mHaloActive = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.HALO_ACTIVE, 0) == 1;
-
-        updateHaloButton();
-
-        if (!mHaloEnabled) {
-            mHaloActive = false;
-        }
-
-        if (mHaloActive) {
-            if (mHalo == null) {
-                LayoutInflater inflater = (LayoutInflater) mContext
-                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                mHalo = (Halo)inflater.inflate(R.layout.halo_trigger, null);
-                mHalo.setLayerType (View.LAYER_TYPE_HARDWARE, null);
-                WindowManager.LayoutParams params = mHalo.getWMParams();
-                mWindowManager.addView(mHalo,params);
-                mHalo.setStatusBar(this);
-            }
-        } else {
-            if (mHalo != null) {
-                mHalo.cleanUp();
-                mWindowManager.removeView(mHalo);
-                mHalo = null;
-            }
-        }
     }
 
     private void initPieController() {
@@ -1375,10 +1255,6 @@ public abstract class BaseStatusBar extends SystemUI implements
             mKeyguard = KeyguardTouchDelegate.getInstance(mContext);
         }
 
-        public void makeFloating(boolean floating) {
-            mFloat = floating;
-        }
-
         public void onClick(View v) {
             if (mNotificationBlamePopup != null) return;
             try {
@@ -1442,7 +1318,6 @@ public abstract class BaseStatusBar extends SystemUI implements
             mPeek.dismissNotification();
         }
     }
-
     /**
      * The LEDs are turned o)ff when the notification panel is shown, even just a little bit.
      * This was added last-minute and is inconsistent with the way the rest of the notifications
@@ -1518,99 +1393,14 @@ public abstract class BaseStatusBar extends SystemUI implements
             handleNotificationError(key, notification, "Couldn't create icon: " + ic);
             return null;
         }
-
-        NotificationData.Entry entry = new NotificationData.Entry(key, notification, iconView);
-        prepareHaloNotification(entry, notification, false);
-        entry.hide = entry.notification.getPackageName().equals("com.paranoid.halo");
-
-        final PendingIntent contentIntent = notification.getNotification().contentIntent;
-        if (contentIntent != null) {
-            entry.floatingIntent = makeClicker(contentIntent,
-                    notification.getPackageName(), notification.getTag(), notification.getId());
-            entry.floatingIntent.makeFloating(true);
-        }
-
         // Construct the expanded view.
+        NotificationData.Entry entry = new NotificationData.Entry(key, notification, iconView);
         if (!inflateViews(entry, mPile)) {
             handleNotificationError(key, notification, "Couldn't expand RemoteViews for: "
                     + notification);
             return null;
-         }
-
-        if (mNotificationData.findByKey(entry.key) == null) {
-            mNotificationData.add(entry);
         }
         return entry;
-    }
-
-    public void prepareHaloNotification(NotificationData.Entry entry, StatusBarNotification notification, boolean update) {
-
-        Notification notif = notification.getNotification();
-
-        // Get the remote view
-        try {
-
-            if (!update) {
-                ViewGroup mainView = (ViewGroup)notif.contentView.apply(mContext, null, mOnClickHandler);
-
-                if (mainView instanceof FrameLayout) {
-                    entry.haloContent = mainView.getChildAt(1);
-                    mainView.removeViewAt(1);
-                } else {
-                    entry.haloContent = mainView;
-                }
-            } else {
-                notif.contentView.reapply(mContext, entry.haloContent, mOnClickHandler);
-            }
-
-        } catch (Exception e) {
-            // Non uniform content?
-            android.util.Log.d("PARANOID", " Non uniform content?");
-        }
-
-
-        // Construct the round icon
-        final float haloSize = Settings.System.getFloat(mContext.getContentResolver(),
-                Settings.System.HALO_SIZE, 1.0f);
-        Resources res = mContext.getResources();
-        int iconSize = (int) (res.getDimensionPixelSize(R.dimen.halo_bubble_size) * haloSize);
-        int smallIconSize = (int) (res.getDimensionPixelSize(R.dimen.status_bar_icon_size) * haloSize);
-        int largeIconWidth = notif.largeIcon != null ? (int)(notif.largeIcon.getWidth() * haloSize) : 0;
-        int largeIconHeight = notif.largeIcon != null ? (int)(notif.largeIcon.getHeight() * haloSize) : 0;
-        Bitmap roundIcon = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(roundIcon);
-        canvas.drawARGB(0, 0, 0, 0);
-
-        // If we have a bona fide avatar here stretching at least over half the size of our
-        // halo-bubble, we'll use that one and cut it round
-        // TODO: cache the halo bitmap, use 4.4 reveal pattern to draw the background
-        if (notif.largeIcon != null
-                && largeIconWidth >= iconSize / 2) {
-            Paint smoothingPaint = new Paint();
-            smoothingPaint.setAntiAlias(true);
-            smoothingPaint.setFilterBitmap(true);
-            smoothingPaint.setDither(true);
-            canvas.drawCircle(iconSize / 2, iconSize / 2, iconSize / 2.3f, smoothingPaint);
-            smoothingPaint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));
-            final int newWidth = iconSize;
-            final int newHeight = iconSize * largeIconWidth / largeIconHeight;
-            Bitmap scaledBitmap = Bitmap.createScaledBitmap(notif.largeIcon, newWidth, newHeight, true);
-            canvas.drawBitmap(scaledBitmap, null, new Rect(0, 0,
-                    iconSize, iconSize), smoothingPaint);
-        } else {
-            try {
-                Drawable icon = StatusBarIconView.getIcon(mContext,
-                    new StatusBarIcon(notification.getPackageName(), notification.getUser(), notif.icon,
-                    notif.iconLevel, notif.number, notif.tickerText));
-                if (icon == null) icon = mContext.getPackageManager().getApplicationIcon(notification.getPackageName());
-                int margin = (iconSize - smallIconSize) / 2;
-                icon.setBounds(margin, margin, iconSize - margin, iconSize - margin);
-                icon.draw(canvas);
-            } catch (Exception e) {
-                // NameNotFoundException
-            }
-        }
-        entry.roundIcon = roundIcon;
     }
 
     protected void addNotificationViews(NotificationData.Entry entry) {
@@ -1618,11 +1408,9 @@ public abstract class BaseStatusBar extends SystemUI implements
             return;
         }
         // Add the expanded view and icon.
-        if (mNotificationData.findByKey(entry.key) == null) {
-            int pos = mNotificationData.add(entry);
-            if (DEBUG) {
-                Log.d(TAG, "addNotificationViews: added at " + pos);
-            }
+        int pos = mNotificationData.add(entry);
+        if (DEBUG) {
+            Log.d(TAG, "addNotificationViews: added at " + pos);
         }
         updateExpansionStates();
         updateNotificationIcons();
@@ -1670,7 +1458,6 @@ public abstract class BaseStatusBar extends SystemUI implements
             } else {
                 if (DEBUG) Log.d(TAG, "ignoring notification being held by user at " + i);
             }
-            if (entry.hide) entry.row.setVisibility(View.GONE);
         }
     }
 
@@ -1684,7 +1471,7 @@ public abstract class BaseStatusBar extends SystemUI implements
 
     protected abstract void haltTicker();
     protected abstract void setAreThereNotifications();
-    public abstract void updateNotificationIcons();
+    protected abstract void updateNotificationIcons();
     protected abstract void tick(IBinder key, StatusBarNotification n, boolean firstTime);
     protected abstract void updateExpandedViewPos(int expandedPosition);
     protected abstract int getExpandedViewMaxHeight();
@@ -1747,9 +1534,9 @@ public abstract class BaseStatusBar extends SystemUI implements
                 && notification.getScore() == oldNotification.getScore();
                 // score now encompasses/supersedes isOngoing()
 
-        boolean updateTicker = (notification.getNotification().tickerText != null
+        boolean updateTicker = notification.getNotification().tickerText != null
                 && !TextUtils.equals(notification.getNotification().tickerText,
-                        oldEntry.notification.getNotification().tickerText)) && (!mHoverActive || mHaloActive);
+                        oldEntry.notification.getNotification().tickerText)) && (!mHoverActive);
         boolean isTopAnyway = isTopNotification(rowParent, oldEntry);
         if (contentsUnchanged && bigContentsUnchanged && (orderUnchanged || isTopAnyway)) {
             if (DEBUG) Log.d(TAG, "reusing notification for key: " + key);
@@ -1802,7 +1589,6 @@ public abstract class BaseStatusBar extends SystemUI implements
             final NotificationData.Entry newEntry = mNotificationData.findByKey(key);
             if (wasExpanded) {
                 newEntry.row.setExpanded(true);
-                if (newEntry.hide) newEntry.row.setVisibility(View.GONE);
                 newEntry.row.setUserExpanded(true);
             }
             if (mInterruptingNotificationEntry == null && shouldInterrupt(notification)
@@ -1828,9 +1614,6 @@ public abstract class BaseStatusBar extends SystemUI implements
         // Recalculate the position of the sliding windows and the titles.
         setAreThereNotifications();
         updateExpandedViewPos(EXPANDED_LEAVE_ALONE);
-
-        // Update halo
-        if (mHalo != null) mHalo.update();
     }
 
     private void updateNotificationViews(NotificationData.Entry entry,
@@ -1847,18 +1630,14 @@ public abstract class BaseStatusBar extends SystemUI implements
         if (bigContentView != null && entry.getBigContentView() != null) {
             bigContentView.reapply(mContext, entry.getBigContentView(), mOnClickHandler);
         }
-        // update contentIntent and floatingIntent
+        // update the contentIntent
         final PendingIntent contentIntent = notification.getNotification().contentIntent;
         if (contentIntent != null) {
             final View.OnClickListener listener =
                     mNotificationHelper.getNotificationClickListener(entry, headsUp);
             entry.content.setOnClickListener(listener);
-            entry.floatingIntent = makeClicker(contentIntent,
-                    notification.getPackageName(), notification.getTag(), notification.getId());
-            entry.floatingIntent.makeFloating(true);
         } else {
             entry.content.setOnClickListener(null);
-            entry.floatingIntent = null;
         }
 
         // Update the roundIcon

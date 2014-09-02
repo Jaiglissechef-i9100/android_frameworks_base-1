@@ -200,20 +200,8 @@
     <!-- Active display -->
     <string name="active_display_privacy_content">Content message not showing because privacy mode enabled</string>
 
-    <!-- Content description of the halo button in the notification panel for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
-    <string name="accessibility_halo">Create notification halo.</string>
-
     <!-- Content description of the hover button in the notification panel for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
     <string name="accessibility_hover">Create notification hover.</string>
-
-    <!-- Halo -->
-    <string name="halo_dismiss">Dismiss notification</string>
-    <string name="halo_hide">Hide</string>
-    <string name="halo_clear_all">Dismiss all notifications</string>
-    <string name="halo_silence">Hide &amp; silence until woken</string>
-    <string name="halo_tutorial1">This is HALO</string>
-    <string name="halo_tutorial2">Move me: double tap &amp; drag</string>
-    <string name="halo_tutorial3">Browse tasks: Horizontal drag</string>
 
     <!-- Recents Ram bar -->
     <string name="memory">RAM</string>
@@ -306,4 +294,6 @@
     <string name="location_mode_sensors_only_title">Device only</string>
     <!-- [CHAR LIMIT=30] Location settings screen, location off mode -->
     <string name="location_mode_location_off_title">Location off</string>
+=======
+>>>>>>> parent of 4158c84... [2/2] Frameworks: HALO
 </resources>

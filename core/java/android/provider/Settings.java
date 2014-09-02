@@ -2858,75 +2858,17 @@ public final class Settings {
          */
         public static final String POINTER_SPEED = "pointer_speed";
 
-
-        public static final String NFC_POLLING_MODE = "nfc_polling_mode";
-
-
-        /**
-         * HALO enabled, should default to 0 (HALO is disabled)
+        /** 
+         * NFC polling mode
          * @hide
          */
-        public static final String HALO_ENABLED = "halo_enabled";
+        public static final String NFC_POLLING_MODE = "nfc_polling_mode";
 
         /** 
          * Display second in the Clock
          * @hide
          */
         public static final String CLOCK_USE_SECOND = "clock_use_second";
-
-        /**
-         * HALO, should default to 0 (no, do not show)
-         * @hide
-         */
-        public static final String HALO_ACTIVE = "halo_active";
-
-        /**
-         * HALO reversed?, should default to 1 (yes, reverse)
-         * @hide
-         */
-        public static final String HALO_REVERSED = "halo_reversed";
-
-        /**
-         * HALO hide?, should default to 0 (no, do not hide)
-         * @hide
-         */
-        public static final String HALO_HIDE = "halo_hide";
-
-        /**
-         * HALO size fraction, default is 1.0f (normal)
-         * @hide
-         */
-        public static final String HALO_SIZE = "halo_size";
-
-        /**
-         * HALO message box?, should default to 1 (yes, show message box on incoming notification)
-         * @hide
-         */
-        public static final String HALO_MSGBOX = "halo_msgbox";
-
-        /**
-         * HALO ninja?, should default to 0 (no, do not disappear when empty)
-         * @hide
-         */
-        public static final String HALO_NINJA = "halo_ninja";
-
-        /**
-         * HALO notificatoin count?, should default to 4 (both)
-         * @hide
-         */
-        public static final String HALO_NOTIFY_COUNT = "halo_notify_count";
-
-        /**
-         * HALO message box animation?, should default to 2 (flip animation)
-         * @hide
-         */
-        public static final String HALO_MSGBOX_ANIMATION = "halo_msgbox_animation";
-
-        /**
-         * HALO unlock ping?, should default to 0 (no, do not ping on unlock)
-         * @hide
-         */
-        public static final String HALO_UNLOCK_PING = "halo_unlock_ping";
 
         /**
          * I am the lolrus.

@@ -11,7 +11,6 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <uses-permission android:name="android.permission.INJECT_EVENTS" />
-    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.DUMP" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 
@@ -78,9 +77,6 @@
 
     <!-- Wifi Display -->
     <uses-permission android:name="android.permission.CONFIGURE_WIFI_DISPLAY" />
-
-    <!--Halo-->
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
     <!-- Kill app permission -->
     <uses-permission android:name="android.permission.FORCE_STOP_PACKAGES" />

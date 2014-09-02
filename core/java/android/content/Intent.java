@@ -3726,12 +3726,7 @@ public class Intent implements Parcelable, Cloneable {
      * saw.   This can only be used in conjunction with {@link #FLAG_ACTIVITY_NEW_TASK}.
      */
     public static final int FLAG_ACTIVITY_TASK_ON_HOME = 0X00004000;
-    /**
-     * If set, this intent will always match start up as a floating window
-     * in multi window scenarios.
-     * @hide
-     */
-    public static final int FLAG_FLOATING_WINDOW = 0x00002000;
+
     /**
      * If set in an Intent passed to {@link Context#startActivity Context.startActivity()},
      * this flag will cause a newly launching task to be resized according to the split

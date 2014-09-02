@@ -99,7 +99,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import com.android.systemui.R;
 import com.android.systemui.statusbar.BaseStatusBar.NotificationClicker;
@@ -479,18 +478,11 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
         mNotificationHelper = new NotificationHelper(mBar, mContext);
     }
 
-    void launchTask(NotificationData.Entry entry) {
+    void launchTask(NotificationClicker intent) {
         // Do not launch tasks in hidden state or protected lock screen
         if (mState == STATE_HIDDEN
             || mState == STATE_SILENT
             || (mKeyguardManager.isKeyguardLocked() && mKeyguardManager.isKeyguardSecure())) {
-            return;
-        }
-
-        if (entry.notification.getNotification().contentIntent == null) {
-            String text = mContext.getResources().getString(R.string.status_bar_floating_no_interface);
-            int duration = Toast.LENGTH_SHORT;
-            Toast.makeText(mContext, text, duration).show();
             return;
         }
 
@@ -502,8 +494,9 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
         }
         mDismissDelay = 1500;
 
-        NotificationClicker intent = mNotificationHelper.getNotificationClickListenerForHalo(entry);
-        intent.onClick(mRoot);
+        if (intent!= null) {
+            intent.onClick(mRoot);
+        }
     }
 
     class GestureListener extends GestureDetector.SimpleOnGestureListener {
@@ -523,9 +516,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
         @Override
         public boolean onSingleTapConfirmed(MotionEvent event) {
             if (mState != STATE_DRAG) {
-                if (mCurrentNotficationEntry != null) {
-                    launchTask(mCurrentNotficationEntry);
-                }
+                launchTask(mNotificationHelper.getNotificationClickListenerForHalo(mCurrentNotficationEntry));
             }
             return true;
         }
@@ -633,7 +624,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
                     // Launch tasks
                     if (mTaskEntry != null) {
                         playSoundEffect(SoundEffectConstants.CLICK);
-                        launchTask(mTaskEntry);
+                        launchTask(mNotificationHelper.getNotificationClickListenerForHalo(mTaskEntry));
                     }
                     mEffect.nap(100);
                 } else if (mGesture == GESTURE_DOWN2) {

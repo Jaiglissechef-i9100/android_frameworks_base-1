@@ -932,7 +932,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
             updateResources(mTickerLeft);
         }
 
-        void getRawPoint(MotionEvent ev, int index, PointF point) {
+        void getRawPoint(MotionEvent ev, int index, PointF point){
             final int location[] = { 0, 0 };
             mRoot.getLocationOnScreen(location);
 
@@ -1135,45 +1135,6 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
             snapAnimator.animate(ObjectAnimator.ofInt(this, "haloX", newPos)
                                                .setDuration(SNAP_TIME),
                     new DecelerateInterpolator(), null, delay, null);
-        }
-
-        public void refresh() {
-            int newPos;
-            final int triggerWidth;
-
-            int haloCounterType = Settings.System.getInt(mContext.getContentResolver(),
-                    Settings.System.HALO_NOTIFY_COUNT, 4);
-
-            if (haloCounterType == 2 || haloCounterType == 4) {
-                mHandler.postDelayed(new Runnable() {
-                    public void run() {
-                        if (mState != STATE_GESTURES && mState != STATE_DRAG) {
-                            final int c = getHaloMsgCount()-getHidden() < 0
-                                                ? 0
-                                                : getHaloMsgCount()-getHidden();
-                            mEffect.animateHaloBatch(0, mHaloHide ? 0 : c, false, 3000,
-                                                    HaloProperties.MessageType.MESSAGE);
-                        }
-                    }
-                }, 2000);
-            }
-
-            // Halo is hidden
-            if (mHaloX == -mIconSize || mHaloX == mScreenWidth) {
-                newPos = (int)(mTickerLeft
-                                    ? -mIconSize * 0.8f
-                                    : mScreenWidth - mIconSize * 0.2f);
-                triggerWidth = newPos;
-                if (getHaloMsgCount() - getHidden() < 1) {
-                    updateTriggerPosition(triggerWidth, mHaloY);
-                    return;
-                }
-                snapAnimator.animate(ObjectAnimator.ofInt(this, "haloX", newPos).setDuration(NAP_TIME),
-                        new DecelerateInterpolator(), null, 0, new Runnable() {
-                    public void run() {
-                        updateTriggerPosition(triggerWidth, mHaloY);
-                    }});
-            }
         }
 
         public void nap(long delay) {
@@ -1480,7 +1441,12 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
     // This is the android ticker callback
     public void updateTicker(StatusBarNotification notification, String text) {
         mTickerUpdated = true;
-        boolean allowed = isPackageAllowedForHalo(notification);
+        boolean allowed = false; // default off
+        try {
+            allowed = mNotificationManager.isPackageAllowedForHalo(notification.getPackageName());
+        } catch (android.os.RemoteException ex) {
+            // System is dead
+        }
         if (allowed) {
             for (int i = 0; i < mNotificationData.size(); i++) {
                 NotificationData.Entry entry = mNotificationData.get(i);
@@ -1530,9 +1496,14 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
         int msgs = 0;
         StatusBarNotification notification;
 
-        for (int i = 0; i < mNotificationData.size(); i++) {
+        for(int i = 0; i < mNotificationData.size(); i++) {
             notification = mNotificationData.get(i).notification;
-            if (!isPackageAllowedForHalo(notification)) continue;
+            try {
+                if (!mNotificationManager
+                        .isPackageAllowedForHalo(notification.getPackageName())) continue;
+            } catch (android.os.RemoteException ex) {
+                // System is dead
+            }
             msgs += 1;
         }
         return msgs;
@@ -1542,10 +1513,14 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
         int msgIndex = 0;
         StatusBarNotification notification;
 
-        for (int i = 0; i < mNotificationData.size(); i++) {
+        for (int i = 0; i < mNotificationData.size(); i++){
             notification = mNotificationData.get(i).notification;
-            //ignore blacklisted notifications
-            if (!isPackageAllowedForHalo(notification)) continue;
+            try { //ignore blacklisted notifications
+                if (!mNotificationManager
+                        .isPackageAllowedForHalo(notification.getPackageName())) continue;
+            } catch (android.os.RemoteException ex) {
+                // System is dead
+            }
             //if notifying the user on unlock, ignore persistent notifications
             if (notifyOnUnlock && !notification.isClearable()) continue;
 
@@ -1566,7 +1541,13 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
             StatusBarNotification statusNotify = entry.notification;
             if (statusNotify == null) continue;
 
-            allowed = isPackageAllowedForHalo(mNotificationData.get(i).notification);
+            try {
+                allowed = mNotificationManager
+                            .isPackageAllowedForHalo(mNotificationData
+                                                        .get(i).notification.getPackageName());
+            } catch (android.os.RemoteException ex) {
+                // System is dead
+            }
             persistent = !mNotificationData.get(i).notification.isClearable();
             // persistent notifications that were not blacklisted and pinned apps
             boolean hide = (statusNotify.getPackageName().equals("com.paranoid.halo")
@@ -1574,16 +1555,6 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
             if (hide) ignore++;
         }
         return ignore;
-    }
-
-    private boolean isPackageAllowedForHalo(StatusBarNotification notification) {
-        try {
-            return mNotificationManager
-                        .isPackageAllowedForHalo(notification.getPackageName());
-        } catch (android.os.RemoteException ex) {
-            // System is dead
-            return false;
-        }
     }
 
     private class HaloReceiver extends INotificationListener.Stub {
@@ -1594,27 +1565,42 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
         @Override
         public void onNotificationPosted(StatusBarNotification notification) throws RemoteException {
             final StatusBarNotification n = notification;
-            final boolean allowed = isPackageAllowedForHalo(n);
+            boolean allowed = false;
 
-            if (mKeyguardManager.isKeyguardLocked() && n.isClearable() && allowed)
-                mPingNewcomer = true;
+            if (mKeyguardManager.isKeyguardLocked() && notification.isClearable()) {
+                try {
+                    allowed = mNotificationManager
+                                .isPackageAllowedForHalo(notification.getPackageName());
+                } catch (android.os.RemoteException ex) {
+                    // System is dead
+                }
+                if (allowed) mPingNewcomer = true;
+            }
 
             mHandler.postDelayed(new Runnable() {
                 public void run() {
+                    ApplicationInfo ai;
                     NotificationData.Entry entry = null;
 
                     // if notification received and not registered by HALO ...
-                    if (!mTickerUpdated && allowed) {
+                    if(!mTickerUpdated){
                         for (int i = 0; i < mNotificationData.size(); i++) {
-                            if (mNotificationData.get(i).notification.toString().equals(n.toString()))
+                            if(mNotificationData.get(i).notification.toString().equals(n.toString()))
                                 entry = mNotificationData.get(i);
                         }
 
-                        if (entry != null) {
-                            mPingNewcomer = true;
-                            mLastNotificationEntry = entry;
-                            tick(entry, 0, 0, false, false);
-                            mEffect.refresh();
+                        if(entry != null){
+                            try {
+                                ai = mPm.getApplicationInfo( entry.notification.getPackageName(), 0);
+                            } catch (final NameNotFoundException e) {
+                                ai = null;
+                            }
+                            String text = (String) (ai != null ? mPm.getApplicationLabel(ai) : "...");
+
+                            if (entry.notification.getNotification().tickerText != null) {
+                                text = entry.notification.getNotification().tickerText.toString();
+                            }
+                            updateTicker(n, text);
                         }
                     }
                     mTickerUpdated = false;
@@ -1650,11 +1636,6 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
                         loadLastNotification(false);
                     } else {
                         tick(entry, 0, 0, false, false);
-                        // prevent halo showing removed notification after gesture
-                        mLastNotificationEntry = entry;
-
-                        // no notification left, reset mTaskIntent
-                        if (entry == null) mTaskIntent = null;
                     }
                     final int c = getHaloMsgCount()-getHidden() < 0
                                         ? 0
@@ -1681,7 +1662,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
         @Override
         public void onReceive(Context context, Intent intent) {
             final ContentResolver resolver = mContext.getContentResolver();
-            if (intent.getAction().equals(Intent.ACTION_USER_PRESENT) &&
+            if(intent.getAction().equals(Intent.ACTION_USER_PRESENT) &&
                     Settings.System.getInt(resolver, Settings.System.HALO_ACTIVE, 0) == 1 &&
                     Settings.System.getInt(resolver, Settings.System.HALO_UNLOCK_PING, 0) == 1 &&
                     mState != STATE_SILENT && mPingNewcomer) {
@@ -1702,7 +1683,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
                             }
                     }
                     }, 400);
-            } else if (intent.getAction().equals(Intent.ACTION_USER_PRESENT) &&
+            } else if(intent.getAction().equals(Intent.ACTION_USER_PRESENT) &&
                     Settings.System.getInt(resolver, Settings.System.HALO_ACTIVE, 0) == 1 &&
                     mKeyguardManager.isKeyguardSecure() && mPingNewcomer) {
                 mHandler.postDelayed(new Runnable() {

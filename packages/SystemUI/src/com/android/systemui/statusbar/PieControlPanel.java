@@ -47,7 +47,7 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-import com.android.internal.util.du.TorchConstants;
+import com.android.internal.util.liquid.TorchConstants;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.PieControl.OnNavButtonPressedListener;
@@ -406,7 +406,7 @@ public class PieControlPanel extends FrameLayout implements StatusBarPanel,
                 return; // don't kill SystemUI
             if (!defaultHomePackage.equals(packageName)) {
                 am.forceStopPackage(packageName);
-                Toast.makeText(mContext, com.android.internal.R.string.app_killed_message, Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, R.string.app_killed_message, Toast.LENGTH_SHORT).show();
             }
         }
      }

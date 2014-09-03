@@ -126,7 +126,7 @@ public class PieControl implements OnClickListener {
         mTorch = makeItem(R.drawable.ic_sysbar_torch_pie, 1, TORCH_BUTTON, true);
         mActNotif = makeItem(R.drawable.ic_sysbar_notifications_pie, 1, ACT_NOTIF_BUTTON, true);
         mPower = makeItem(R.drawable.ic_sysbar_power, 1, POWER_BUTTON, true);
-        mScreenshot = makeItem(R.drawable.ic_qs_screenshot, 1, SCREENSHOT_BUTTON, true);
+        mScreenshot = makeItem(R.drawable.ic_sysbar_screenshot, 1, SCREENSHOT_BUTTON, true);
         mSearch = makeItem(R.drawable.ic_sysbar_search_side, 1, SEARCH_BUTTON, true);
 
         mPie.addItem(mMenu);

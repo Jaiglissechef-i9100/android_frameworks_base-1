@@ -62,6 +62,9 @@ public class MobileNetworkTile extends NetworkTile {
         mOnClick = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (isFlipTilesEnabled()) {
+                    flipTile(0);
+                }
                 if (!mCm.getMobileDataEnabled()) {
                     // None, onMobileDataSignalChanged will set final overlay image
                     updateOverlayImage(NO_OVERLAY);
@@ -69,9 +72,6 @@ public class MobileNetworkTile extends NetworkTile {
                 } else {
                     updateOverlayImage(DISABLED_OVERLAY);
                     mCm.setMobileDataEnabled(false);
-                }
-                if (isFlipTilesEnabled()) {
-                    flipTile(0);
                 }
             }
         };

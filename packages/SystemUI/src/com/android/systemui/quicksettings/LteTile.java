@@ -47,11 +47,11 @@ public class LteTile extends QuickSettingsTile {
         mOnClick = new OnClickListener() {
             @Override
             public void onClick(View v) {
-                toggleLteState();
-                updateResources();
                 if (isFlipTilesEnabled()) {
                     flipTile(0);
                 }
+                toggleLteState();
+                updateResources();
             }
         };
 

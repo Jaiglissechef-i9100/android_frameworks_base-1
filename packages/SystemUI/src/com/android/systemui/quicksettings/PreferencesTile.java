@@ -37,6 +37,9 @@ public class PreferencesTile extends QuickSettingsTile{
 
             @Override
             public void onClick(View v) {
+                if (isFlipTilesEnabled()) {
+                    flipTile(0);
+                }
                 startSettingsActivity(android.provider.Settings.ACTION_SETTINGS);
             }
         };

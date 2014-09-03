@@ -39,6 +39,9 @@ public class VolumeTile extends QuickSettingsTile {
 
             @Override
             public void onClick(View view) {
+                if (isFlipTilesEnabled()) {
+                    flipTile(0);
+                }
                 qsc.mBar.collapseAllPanels(true);
                 AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
                 am.adjustVolume(AudioManager.ADJUST_SAME, AudioManager.FLAG_SHOW_UI);

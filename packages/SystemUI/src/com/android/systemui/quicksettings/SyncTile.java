@@ -40,11 +40,11 @@ public class SyncTile extends QuickSettingsTile {
         mOnClick = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                toggleState();
-                updateResources();
                 if (isFlipTilesEnabled()) {
                     flipTile(0);
                 }
+                toggleState();
+                updateResources();
             }
         };
 

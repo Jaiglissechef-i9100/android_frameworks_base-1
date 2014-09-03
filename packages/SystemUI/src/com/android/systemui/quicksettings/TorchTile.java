@@ -46,10 +46,10 @@ public class TorchTile extends QuickSettingsTile {
         mOnClick = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LiquidActions.processAction(mContext, ButtonsConstants.ACTION_TORCH, false);
                 if (isFlipTilesEnabled()) {
                     flipTile(0);
                 }
+                LiquidActions.processAction(mContext, ButtonsConstants.ACTION_TORCH, false);
             }
         };
 

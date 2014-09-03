@@ -76,6 +76,9 @@ public class MobileNetworkTypeTile extends QuickSettingsTile
         mOnClick = new OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (isFlipTilesEnabled()) {
+                    flipTile(0);
+                }
                 int currentMode = getCurrentCMMode();
 
                 Intent intent = new Intent(ACTION_MODIFY_NETWORK_MODE);
@@ -111,9 +114,6 @@ public class MobileNetworkTypeTile extends QuickSettingsTile
                 }
                 mMode = NETWORK_MODE_UNKNOWN;
                 mContext.sendBroadcast(intent);
-                if (isFlipTilesEnabled()) {
-                    flipTile(0);
-                }
             }
         };
 

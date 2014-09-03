@@ -4600,6 +4600,12 @@ public final class Settings {
          */
         public static final String CUSTOM_SOUND_EFFECTS_PATH = "custom_sound_effects_path";
 
+        /**
+         * Whether to use the custom status bar header or not
+         * @hide
+         */
+        public static final String STATUS_BAR_CUSTOM_HEADER = "status_bar_custom_header";
+
 		/**
 		 * Whether or not to show circle battery around the lockscreen ring
 		 * @hide

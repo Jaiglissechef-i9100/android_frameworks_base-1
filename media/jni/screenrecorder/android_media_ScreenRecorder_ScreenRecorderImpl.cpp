@@ -181,7 +181,7 @@ static status_t prepareVideoEncoder(float displayFps,
     err = videoCodec->createInputSurface(&bufferProducer);
     if (err != NO_ERROR) {
         videoCodec->release();
-        videoCodec.clear();codec.clear();
+        videoCodec.clear();
 
         fprintf(stderr,
             "ERROR: unable to create video encoder input surface (err=%d)\n", err);

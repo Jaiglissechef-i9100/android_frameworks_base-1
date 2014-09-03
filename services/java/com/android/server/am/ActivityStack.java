@@ -37,7 +37,6 @@ import static com.android.server.am.ActivityStackSupervisor.DEBUG_STATES;
 import static com.android.server.am.ActivityStackSupervisor.HOME_STACK_ID;
 
 import com.android.internal.os.BatteryStatsImpl;
-import com.android.internal.util.Objects;
 import com.android.server.AttributeCache;
 import com.android.server.Watchdog;
 import com.android.server.am.ActivityManagerService.ItemMatcher;
@@ -83,7 +82,6 @@ import android.view.ContextThemeWrapper;
 import android.view.Display;
 import android.view.IWindowManager;
 import android.view.WindowManagerGlobal;
-import com.android.internal.app.ActivityTrigger;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;

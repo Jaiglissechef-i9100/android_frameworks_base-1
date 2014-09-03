@@ -1522,7 +1522,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
     }
 
     void clearTicker() {
-        mEffect.mHaloIcon.setImageDrawable(null);
+        mEffect.setNotificationIcon(null);
         mEffect.msgNumberAlphaAnimator.cancel(true);
         mEffect.msgNumberFlipAnimator.cancel(true);
         mEffect.tickerAnimator.cancel(true);
@@ -1627,7 +1627,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
                             tick(entry, HaloEffect.WAKE_TIME * 2, 1000, true, showMsgBox, false);
 
                             // Pop while not tasking, only if notification is certified fresh
-                            if (mGesture != GESTURE_TASK && mState != STATE_SILENT) mEffect.ping(mPaintHoloGrey, HaloEffect.WAKE_TIME * 2);
+                            if (mGesture != GESTURE_TASK && mState != STATE_SILENT) mEffect.ping(mPaintHolo, HaloEffect.WAKE_TIME * 2);
                         }
                     break;
                 }

@@ -2960,7 +2960,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     Animator mScrollViewAnim, mFlipSettingsViewAnim, mNotificationButtonAnim,
         mSettingsButtonAnim, mClearButtonAnim, mHaloButtonAnim,
         mHoverButtonAnim, mRibbonViewAnim, mBrightnessViewAnim;
-        mSettingsButtonAnim, mClearButtonAnim;
 
     @Override
     public void animateExpandNotificationsPanel() {

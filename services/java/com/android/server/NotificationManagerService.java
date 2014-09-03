@@ -216,7 +216,6 @@ public class NotificationManagerService extends INotificationManager.Stub
     private HashSet<String> mPeekBlacklist = new HashSet<String>();
     private HashSet<String> mFloatingModeBlacklist = new HashSet<String>();
     private HashSet<String> mHoverBlacklist = new HashSet<String>();
-    private HashSet<String> mBlockedPackages = new HashSet<String>();
     private HashSet<String> mHaloBlacklist = new HashSet<String>();
     private HashSet<String> mHaloWhitelist = new HashSet<String>();
     private boolean mHaloPolicyisBlack = true;
@@ -505,20 +504,6 @@ public class NotificationManagerService extends INotificationManager.Stub
                 mHoverPolicyFile = new AtomicFile(new File(SYSTEM_FOLDER, HOVER_POLICY));
                 mHoverBlacklist.clear();
                 readPolicy(mHoverPolicyFile, TAG_BLOCKED_PKGS, mHoverBlacklist);
-            }
-        }
-    }
-
-    private void writeBlockDb() {
-        synchronized(mBlockedPackages) {
-            FileOutputStream outfile = null;
-            try {
-                outfile = mPolicyFile.startWrite();
-
-                XmlSerializer out = new FastXmlSerializer();
-                out.setOutput(outfile, "utf-8");
-
-                out.startDocument(null, true);
             }
         }
     }
@@ -1002,10 +987,11 @@ public class NotificationManagerService extends INotificationManager.Stub
             if (!info.isSystem) {
                 Slog.v(TAG, "disabling notification listener for user " + oldUser + ": " + component);
                 unregisterListenerService(component, info.userid);
-            }
+
             // HALO
             // Do not un-register HALO, we un-register only when HALO is closed
             if (!component.getPackageName().equals("HaloComponent")) unregisterListenerService(component, info.userid);
+            }
         }
 
         final int N = toAdd.size();
@@ -1029,7 +1015,7 @@ public class NotificationManagerService extends INotificationManager.Stub
         // Active notifications
         final int permission = mContext.checkCallingPermission(
                 android.Manifest.permission.SYSTEM_NOTIFICATION_LISTENER);
-        if (permission == PackageManager.PERMISSION_DENIED)
+        if (permission == PackageManager.PERMISSION_DENIED) {
             checkCallerIsSystem();
         // Halo
 	if (!component.getPackageName().equals("HaloComponent")) checkCallerIsSystem();

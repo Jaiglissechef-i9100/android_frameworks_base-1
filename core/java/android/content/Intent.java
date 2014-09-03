@@ -769,20 +769,6 @@ public class Intent implements Parcelable, Cloneable {
             "android.intent.extra.shortcut.ICON_RESOURCE";
 
     /**
-    * Registered and foreground services only
-    * @hide
-    */
-    public static final String ACTION_ACTIVITY_LAUNCH_DETECTOR =
-            "android.intent.action.ACTIVITY_LAUNCH_DETECTOR";
-
-    /**
-    * Registered and foreground services only
-    * @hide
-    */
-    public static final String ACTION_ACTIVITY_END_DETECTOR =
-            "android.intent.action.ACTIVITY_END_DETECTOR";
-
-    /**
      * Represents a shortcut/live folder icon resource.
      *
      * @see Intent#ACTION_CREATE_SHORTCUT

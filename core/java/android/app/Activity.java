@@ -41,7 +41,6 @@ import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Rect;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -6004,7 +6003,6 @@ public class Activity extends ContextThemeWrapper
                         WindowManager.LayoutParams.FLAG_DIM_BEHIND);
                 params.alpha = 1f;
                 params.dimAmount = 0.25f;
-                mWindow.setAttributes((android.view.WindowManager.LayoutParams) params);
             }
             mWindow.setAttributes(params);
 

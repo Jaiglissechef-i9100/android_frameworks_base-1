@@ -140,7 +140,6 @@ final class ActivityRecord {
     boolean immersive;      // immersive mode (don't interrupt if possible)
     boolean forceNewConfig; // force re-create with new config next time
 
-    boolean newAppTask;
     boolean topIntent;
     boolean newTask;
     boolean newAppTask;
@@ -487,11 +486,7 @@ final class ActivityRecord {
                 processName = aInfo.processName;
             }
 
-<<<<<<< HEAD
-            if (intent != null && (aInfo.flags & ActivityInfo.FLAG_EXCLUDE_FROM_RECENTS) != 0)
-=======
             if ((intent != null && (aInfo.flags & ActivityInfo.FLAG_EXCLUDE_FROM_RECENTS) != 0)
->>>>>>> 2add61e... Base: Sync AOSPA Floating window Changes with AOSB
                 || floatingWindow) {
                 intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
             }

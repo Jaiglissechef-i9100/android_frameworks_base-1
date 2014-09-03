@@ -10098,7 +10098,14 @@ public class WindowManagerService extends IWindowManager.Stub
 		        }
 		    }	
 	    }else{
-		return win;
+                // Dispatch to this window if it is wants key events.
+                if (win.canReceiveKeys()) {
+                    if (mFocusedApp != null) {
+                        return win;
+                    } else {
+                        return win;
+                    }
+                }
 	    }
 	    
         }
@@ -11093,11 +11100,6 @@ public class WindowManagerService extends IWindowManager.Stub
         return mWindowMap;
     }
 
-    @Override
-    public void addSystemUIVisibilityFlag(int flag) {
-        mLastStatusBarVisibility |= flag;
-    }
-
     /* @hide */
     @Override
     public boolean expandedDesktopHidesNavigationBar() {
@@ -11126,6 +11128,11 @@ public class WindowManagerService extends IWindowManager.Stub
     @Override
     public void toggleStatusBar() {
         mPolicy.toggleStatusBar();
+    }
+
+    @Override
+    public void addSystemUIVisibilityFlag(int flag) {
+        mLastStatusBarVisibility |= flag;
     }
 
     private void moveTaskAndActivityToFront(int taskId) {

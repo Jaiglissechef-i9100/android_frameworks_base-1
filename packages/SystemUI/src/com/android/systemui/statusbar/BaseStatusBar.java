@@ -531,6 +531,8 @@ public abstract class BaseStatusBar extends SystemUI implements
                 restartHalo();
             }});
 
+        updateHalo();
+
         //HOVER
         mContext.getContentResolver().registerContentObserver(
                 Settings.System.getUriFor(Settings.System.HOVER_ACTIVE),
@@ -558,7 +560,6 @@ public abstract class BaseStatusBar extends SystemUI implements
                 updateHoverActive();
             }});
 
-        updateHalo();
         updateHoverActive();
     }
 
@@ -624,6 +625,13 @@ public abstract class BaseStatusBar extends SystemUI implements
         mHoverButton.setVisibility((shouldBeVisible && !mHoverHideButton) ? View.VISIBLE : View.GONE);
     }
 
+    public void setHaloTaskerActive(boolean haloTaskerActive, boolean updateNotificationIcons) {
+        mHaloTaskerActive = haloTaskerActive;
+        if (updateNotificationIcons) {
+            updateNotificationIcons();
+        }
+    }
+
     protected void updateHaloButton() {
         if (!mHaloEnabled) {
             mHaloButtonVisible = false;
@@ -637,13 +645,6 @@ public abstract class BaseStatusBar extends SystemUI implements
 
     protected void updateHoverButton() {
         updateHoverButton(true);
-    }
-
-    public void setHaloTaskerActive(boolean haloTaskerActive, boolean updateNotificationIcons) {
-        mHaloTaskerActive = haloTaskerActive;
-        if (updateNotificationIcons) {
-            updateNotificationIcons();
-        }
     }
 
     public void updateHoverActive() {
@@ -1522,13 +1523,6 @@ public abstract class BaseStatusBar extends SystemUI implements
         NotificationData.Entry entry = new NotificationData.Entry(key, notification, iconView);
         prepareHaloNotification(entry, notification, false);
         entry.hide = entry.notification.getPackageName().equals("com.paranoid.halo");
-
-        final PendingIntent contentIntent = notification.getNotification().contentIntent;
-        if (contentIntent != null) {
-            entry.floatingIntent = makeClicker(contentIntent,
-                    notification.getPackageName(), notification.getTag(), notification.getId());
-            entry.floatingIntent.makeFloating(true);
-        }
 
         // Construct the expanded view.
         if (!inflateViews(entry, mPile)) {

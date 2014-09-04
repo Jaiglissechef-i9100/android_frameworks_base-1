@@ -130,16 +130,16 @@ public class PieControl implements OnClickListener {
         mSearch = makeItem(R.drawable.ic_sysbar_search_side, 1, SEARCH_BUTTON, true);
 
         mPie.addItem(mMenu);
-        mPie.addItem(mSearch);
-        mPie.addItem(mRecent);
-        mPie.addItem(mHome);
-        mPie.addItem(mBack);
+        mPie.addItem(mPower);
+        mPie.addItem(mScreenshot);
         mPie.addItem(mKillTask);
         mPie.addItem(mLastApp);
         mPie.addItem(mTorch);
         mPie.addItem(mActNotif);
-        mPie.addItem(mPower);
-        mPie.addItem(mScreenshot);
+        mPie.addItem(mSearch);
+        mPie.addItem(mRecent);
+        mPie.addItem(mHome);
+        mPie.addItem(mBack);
     }
 
     @Override

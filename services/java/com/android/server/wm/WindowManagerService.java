@@ -10081,7 +10081,8 @@ public class WindowManagerService extends IWindowManager.Stub
 		        if (mFocusedApp != null) {
 		            if (mIsTokenSplitted.containsKey(mFocusedApp.token) && mIsTokenSplitted.get(mFocusedApp.token)) {
 		                if ((mTaskTouched != null && mTaskTouched.equals(mFocusedApp.token)) || mTaskTouched == null) {
-		                    if (DEBUG_FOCUS) Slog.v(TAG, "Found focus @ " + i + " = " + win);
+		                    if (DEBUG_FOCUS) Slog.v(
+		                        TAG, "Found focus @ " + i + " = " + win);
 		                    return win;
 		                } else {
 		                    if (DEBUG_FOCUS || localLOGV) Slog.v(

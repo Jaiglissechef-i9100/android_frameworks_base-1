@@ -2640,6 +2640,9 @@ public class Activity extends ContextThemeWrapper
         return onKeyShortcut(event.getKeyCode(), event);
     }
 
+    boolean scaleW, scaleH, move;
+    Point lastPos;
+
     /**
      * Called to process touch screen events.  You can override this to
      * intercept all touch screen events before they are dispatched to the
@@ -5994,7 +5997,7 @@ public class Activity extends ContextThemeWrapper
             mWindow.mIsFloatingWindow = true;
             if (!isAlreadyAttachToWindow) {
                 isAlreadyAttachToWindow = true;
-                mWindow.setCloseOnTouchOutsideIfNotSet(true);
+                mWindow.setCloseOnTouchOutsideIfNotSet(false);
                 mWindow.setGravity(Gravity.CENTER);
                 // Scale it
                 scaleFloatingWindow();

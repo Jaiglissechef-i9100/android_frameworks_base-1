@@ -2864,12 +2864,6 @@ public final class Settings {
          */
         public static final String NFC_POLLING_MODE = "nfc_polling_mode";
 
-        /** 
-         * Display second in the Clock
-         * @hide
-         */
-        public static final String CLOCK_USE_SECOND = "clock_use_second";
-
         /**
          * I am the lolrus.
          * <p>
@@ -4176,18 +4170,6 @@ public final class Settings {
         public static final String MENU_UNLOCK_SCREEN = "menu_unlock_screen";
 
         /**
-         * Allows to show the background activity back the lockscreen
-         * @hide
-         */
-        public static final String LOCKSCREEN_SEE_THROUGH = "lockscreen_see_through";
-
-        /**
-         * Radius of the blur lockscreen background
-         * @hide
-         */
-        public static final String LOCKSCREEN_BLUR_RADIUS = "lockscreen_blur_radius";
-
-        /**
          * Recent panel expanded mode (auto = 0, always = 1, never = 2).
          * @hide
          */
@@ -4427,71 +4409,71 @@ public final class Settings {
          */
         public static final String CUSTOM_OVERFLING_DISTANCE = "custom_overfling_distance";
 
-		/**
-		 * SMOOTH PROGRESS BAR interpolator
-		 * @hide
-		 */
-		public static final String PROGRESSBAR_INTERPOLATOR = "progressbar_interpolator";
+        /**
+         * SMOOTH PROGRESS BAR interpolator
+         * @hide
+         */
+        public static final String PROGRESSBAR_INTERPOLATOR = "progressbar_interpolator";
 
-		/**
-		 * SMOOTH PROGRESS BAR Mirror
-		 * @hide
-		 */
-		public static final String PROGRESSBAR_MIRROR = "progressbar_mirror";
+        /**
+         * SMOOTH PROGRESS BAR Mirror
+         * @hide
+         */
+        public static final String PROGRESSBAR_MIRROR = "progressbar_mirror";
 
-		/**
-		 * SMOOTH PROGRESS BAR Reverse
-		 * @hide
-		 */
-		public static final String PROGRESSBAR_REVERSE = "progressbar_reverse";
+        /**
+         * SMOOTH PROGRESS BAR Reverse
+         * @hide
+         */
+        public static final String PROGRESSBAR_REVERSE = "progressbar_reverse";
 
-		/**
-		 * SMOOTH PROGRESS BAR Speed
-		 * @hide
-		 */
-		public static final String PROGRESSBAR_SPEED = "progressbar_speed";
+        /**
+         * SMOOTH PROGRESS BAR Speed
+         * @hide
+         */
+        public static final String PROGRESSBAR_SPEED = "progressbar_speed";
 
-		/**
-		 * SMOOTH PROGRESS BAR Width
-		 * @hide
-		 */
-		public static final String PROGRESSBAR_WIDTH = "progressbar_width";
+        /**
+         * SMOOTH PROGRESS BAR Width
+         * @hide
+         */
+        public static final String PROGRESSBAR_WIDTH = "progressbar_width";
 
-		/**
-		 * SMOOTH PROGRESS BAR Length
-		 * @hide
-		 */
-		public static final String PROGRESSBAR_LENGTH = "progressbar_length";
+        /**
+         * SMOOTH PROGRESS BAR Length
+         * @hide
+         */
+        public static final String PROGRESSBAR_LENGTH = "progressbar_length";
 
-		/**
-		 * SMOOTH PROGRESS BAR Count
-		 * @hide
-		 */
-		public static final String PROGRESSBAR_COUNT = "progressbar_count";
+        /**
+         * SMOOTH PROGRESS BAR Count
+         * @hide
+         */
+        public static final String PROGRESSBAR_COUNT = "progressbar_count";
 
-		/**
-		 * SMOOTH PROGRESS BAR Color_1
-		 * @hide
-		 */
-		public static final String PROGRESSBAR_COLOR_1 = "progressbar_color_1";
+        /**
+         * SMOOTH PROGRESS BAR Color_1
+         * @hide
+         */
+        public static final String PROGRESSBAR_COLOR_1 = "progressbar_color_1";
 
-		/**
-		 * SMOOTH PROGRESS BAR Color_2
-		 * @hide
-		 */
-		public static final String PROGRESSBAR_COLOR_2 = "progressbar_color_2";
+        /**
+         * SMOOTH PROGRESS BAR Color_2
+         * @hide
+         */
+        public static final String PROGRESSBAR_COLOR_2 = "progressbar_color_2";
 
-		/**
-		 * SMOOTH PROGRESS BAR Color_3
-		 * @hide
-		 */
-		public static final String PROGRESSBAR_COLOR_3 = "progressbar_color_3";
+        /**
+         * SMOOTH PROGRESS BAR Color_3
+         * @hide
+         */
+        public static final String PROGRESSBAR_COLOR_3 = "progressbar_color_3";
 
-		/**
-		 * SMOOTH PROGRESS BAR Color_4
-		 * @hide
-		 */
-		public static final String PROGRESSBAR_COLOR_4 = "progressbar_color_4";
+        /**
+         * SMOOTH PROGRESS BAR Color_4
+         * @hide
+         */
+        public static final String PROGRESSBAR_COLOR_4 = "progressbar_color_4";
 
         /**
          * Toast Animations
@@ -4573,25 +4555,6 @@ public final class Settings {
         public static final String NOTIFICATION_VIBRATE_DURING_ALERTS_DISABLED = "vibrate_while_no_alerts";
 
         /**
-         * Whether wifi settings will connect to access point automatically
-         * 0 = automatically
-         * 1 = manually
-         * @hide
-         */
-        public static final String WIFI_AUTO_CONNECT_TYPE = "wifi_auto_connect_type";
-
-        /**
-         * Whether wifi settings will connect to access point automatically when
-         * network from mobile network transform to Wifi network
-         * 0 = automatically
-         * 1 = manually
-         * 2 = always ask
-         *
-         * @hide
-         */
-        public static final String DATA_TO_WIFI_CONNECT_TYPE = "data_to_wifi_connect_type";
-
-        /**
          * Swap volume buttons when the screen is rotated
          * 0 - Disabled
          * 1 - Enabled (screen is rotated by 90 or 180 degrees: phone, hybrid)
@@ -4607,150 +4570,150 @@ public final class Settings {
         public static final String CUSTOM_SOUND_EFFECTS_PATH = "custom_sound_effects_path";
 
         /**
+         * Whether or not to show circle battery around the lockscreen ring
+         * @hide
+         */
+        public static final String BATTERY_AROUND_LOCKSCREEN_RING = "battery_around_lockscreen_ring";
+
+        /**
+         * Action for long-pressing back button on lock screen
+         * @hide
+         */
+        public static final String LOCKSCREEN_LONG_BACK_ACTION = "lockscreen_long_back_action";
+
+        /**
+         * Action for long-pressing home button on lock screen
+         * @hide
+         */
+        public static final String LOCKSCREEN_LONG_HOME_ACTION = "lockscreen_long_home_action";
+
+        /**
+         * Action for long-pressing menu button on lock screen
+         * @hide
+         */
+        public static final String LOCKSCREEN_LONG_MENU_ACTION = "lockscreen_long_menu_action";
+
+        /**
          * Whether to use the custom status bar header or not
          * @hide
          */
         public static final String STATUS_BAR_CUSTOM_HEADER = "status_bar_custom_header";
 
-		/**
-		 * Whether or not to show circle battery around the lockscreen ring
-		 * @hide
-		 */
-		public static final String BATTERY_AROUND_LOCKSCREEN_RING = "battery_around_lockscreen_ring";
+        /**
+         * Enables/disables lockscreen notifications
+         * @hide
+         */
+        public static final String LOCKSCREEN_NOTIFICATIONS = "lockscreen_notifications";
 
-		/**
-		 * Action for long-pressing back button on lock screen
-		 * @hide
-		 */
-		public static final String LOCKSCREEN_LONG_BACK_ACTION = "lockscreen_long_back_action";
+        /**
+         * Turn screen on when device is pulled out of pocket
+         * @hide
+         */
+        public static final String LOCKSCREEN_NOTIFICATIONS_POCKET_MODE = "lockscreen_notifications_pocket_mode";
 
-		/**
-		 * Action for long-pressing home button on lock screen
-		 * @hide
-		 */
-		public static final String LOCKSCREEN_LONG_HOME_ACTION = "lockscreen_long_home_action";
+        /**
+         * Turn screen on when pulled out of pocket even if no notifications are pending
+         * @hide
+         */
+        public static final String LOCKSCREEN_NOTIFICATIONS_SHOW_ALWAYS = "lockscreen_notifications_show_always";
 
-		/**
-		 * Action for long-pressing menu button on lock screen
-		 * @hide
-		 */
-		public static final String LOCKSCREEN_LONG_MENU_ACTION = "lockscreen_long_menu_action";
+        /**
+         * Hide low priority notifications such as google now weather notifications from lockscreen notifications
+         * @hide
+         */
+        public static final String LOCKSCREEN_NOTIFICATIONS_HIDE_LOW_PRIORITY = "lockscreen_notifications_hide_low_priority";
 
-		/**
-		 * Enables/disables lockscreen notifications
-		 * @hide
-		 */
-		public static final String LOCKSCREEN_NOTIFICATIONS = "lockscreen_notifications";
+        /**
+         * Hide non clearable notifications from lockscreen notifications
+         * @hide
+         */
+        public static final String LOCKSCREEN_NOTIFICATIONS_HIDE_NON_CLEARABLE = "lockscreen_notifications_hide_non_clearable";
 
-		/**
-		 * Turn screen on when device is pulled out of pocket
-		 * @hide
-		 */
-		public static final String LOCKSCREEN_NOTIFICATIONS_POCKET_MODE = "lockscreen_notifications_pocket_mode";
+        /**
+         * Allows dismissing even non-clearable notifications from lockscreen notifications.
+         * Of course, this doesn't really dismiss them, they're just not shown on lockscreen anymore.
+         * @hide
+         */
+        public static final String LOCKSCREEN_NOTIFICATIONS_DISMISS_ALL = "lockscreen_notifications_dismiss_all";
 
-		/**
-		 * Turn screen on when pulled out of pocket even if no notifications are pending
-		 * @hide
-		 */
-		public static final String LOCKSCREEN_NOTIFICATIONS_SHOW_ALWAYS = "lockscreen_notifications_show_always";
+        /**
+         * Toggle between extended and normal view by longpressing the notification
+         * @hide
+         */
+        public static final String LOCKSCREEN_NOTIFICATIONS_EXPANDED_VIEW = "lockscreen_notifications_expanded_view";
 
-		/**
-		 * Hide low priority notifications such as google now weather notifications from lockscreen notifications
-		 * @hide
-		 */
-		public static final String LOCKSCREEN_NOTIFICATIONS_HIDE_LOW_PRIORITY = "lockscreen_notifications_hide_low_priority";
+        /**
+         * Show lockscreen notifications extended when possible
+         * @hide
+         */
+        public static final String LOCKSCREEN_NOTIFICATIONS_FORCE_EXPANDED_VIEW = "lockscreen_notifications_force_expanded_view";
 
-		/**
-		 * Hide non clearable notifications from lockscreen notifications
-		 * @hide
-		 */
-		public static final String LOCKSCREEN_NOTIFICATIONS_HIDE_NON_CLEARABLE = "lockscreen_notifications_hide_non_clearable";
+        /**
+         * Wakes the device when a new notifications is received
+         * @hide
+         */
+        public static final String LOCKSCREEN_NOTIFICATIONS_WAKE_ON_NOTIFICATION = "lockscreen_notifications_wake_on_notification";
 
-		/**
-		 * Allows dismissing even non-clearable notifications from lockscreen notifications.
-		 * Of course, this doesn't really dismiss them, they're just not shown on lockscreen anymore.
-		 * @hide
-		 */
-		public static final String LOCKSCREEN_NOTIFICATIONS_DISMISS_ALL = "lockscreen_notifications_dismiss_all";
+        /**
+         * Sets the count of notifications shown at once
+         * @hide
+         */
+        public static final String LOCKSCREEN_NOTIFICATIONS_HEIGHT = "lockscreen_notifications_height";
 
-		/**
-		 * Toggle between extended and normal view by longpressing the notification
-		 * @hide
-		 */
-		public static final String LOCKSCREEN_NOTIFICATIONS_EXPANDED_VIEW = "lockscreen_notifications_expanded_view";
+        /**
+         * Changes the offset of the notifications to the top of the screen
+         * @hide
+         */
+        public static final String LOCKSCREEN_NOTIFICATIONS_OFFSET_TOP = "lockscreen_notifications_offset_top";
 
-		/**
-		 * Show lockscreen notifications extended when possible
-		 * @hide
-		 */
-		public static final String LOCKSCREEN_NOTIFICATIONS_FORCE_EXPANDED_VIEW = "lockscreen_notifications_force_expanded_view";
+        /**
+         * Enables a privacy mode which disables showing notifications.
+         * @hide
+         */
+        public static final String LOCKSCREEN_NOTIFICATIONS_PRIVACY_MODE = "lockscreen_notifications_privacy_mode";
 
-		/**
-		 * Wakes the device when a new notifications is received
-		 * @hide
-		 */
-		public static final String LOCKSCREEN_NOTIFICATIONS_WAKE_ON_NOTIFICATION = "lockscreen_notifications_wake_on_notification";
+        /**
+         * A list of packages to exclude from being displayed as lockscreen notifications.
+         * This should be a string of packages separated by |
+         * @hide
+         */
+        public static final String LOCKSCREEN_NOTIFICATIONS_EXCLUDED_APPS = "lockscreen_notifications_excluded_apps";
 
-		/**
-		 * Sets the count of notifications shown at once
-		 * @hide
-		 */
-		public static final String LOCKSCREEN_NOTIFICATIONS_HEIGHT = "lockscreen_notifications_height";
+        /**
+         * Set a custom notification background color
+         * @hide
+         */
+        public static final String LOCKSCREEN_NOTIFICATIONS_COLOR = "lockscreen_notifications_color";
 
-		/**
-		 * Changes the offset of the notifications to the top of the screen
-		 * @hide
-		 */
-		public static final String LOCKSCREEN_NOTIFICATIONS_OFFSET_TOP = "lockscreen_notifications_offset_top";
+        /**
+         * Enables dynamic with for shown notifications on devices >= xxhdpi
+         * @hide
+         */
+        public static final String LOCKSCREEN_NOTIFICATIONS_DYNAMIC_WIDTH = "lockscreen_notifications_dynamic_width";
 
-		/**
-		 * Enables a privacy mode which disables showing notifications.
-		 * @hide
-		 */
-		public static final String LOCKSCREEN_NOTIFICATIONS_PRIVACY_MODE = "lockscreen_notifications_privacy_mode";
+        /**
+         * Enable Menu key
+         * @hide
+         */
+        public static final String KEY_MENU_ENABLED = "key_menu_enabled";
 
-		/**
-		 * A list of packages to exclude from being displayed as lockscreen notifications.
-		 * This should be a string of packages separated by |
-		 * @hide
-		 */
-		public static final String LOCKSCREEN_NOTIFICATIONS_EXCLUDED_APPS = "lockscreen_notifications_excluded_apps";
+        /**
+         * Enable Back key
+         * @hide
+         */
+        public static final String KEY_BACK_ENABLED = "key_back_enabled";
 
-		/**
-		 * Set a custom notification background color
-		 * @hide
-		 */
-		public static final String LOCKSCREEN_NOTIFICATIONS_COLOR = "lockscreen_notifications_color";
+        /**
+         * Enable Home key
+         * @hide
+         */
+        public static final String KEY_HOME_ENABLED = "key_home_enabled";
 
-		/**
-		 * Enables dynamic with for shown notifications on devices >= xxhdpi
-		 * @hide
-		 */
-		public static final String LOCKSCREEN_NOTIFICATIONS_DYNAMIC_WIDTH = "lockscreen_notifications_dynamic_width";
-
-		/**
-		 * Enable Menu key
-		 * @hide
-		 */
-		public static final String KEY_MENU_ENABLED = "key_menu_enabled";
-
-		/**
-		 * Enable Back key
-		 * @hide
-		 */
-		public static final String KEY_BACK_ENABLED = "key_back_enabled";
-
-		/**
-		 * Enable Home key
-		 * @hide
-		 */
-		public static final String KEY_HOME_ENABLED = "key_home_enabled";
-
-		/**
-		 * Whether to unlock the home key.  The value is boolean (1 or 0).
-		 * @hide
-		 */
-		public static final String HOME_UNLOCK_SCREEN = "home_unlock_screen";
+        /**
+         * Whether to unlock the home key.  The value is boolean (1 or 0).
+         * @hide
+         */
+        public static final String HOME_UNLOCK_SCREEN = "home_unlock_screen";
 
         /**
          * Let Quick Settings Panel Tiles vibrate on click
@@ -4862,42 +4825,42 @@ public final class Settings {
          */
         public static final String APP_CIRCLE_BAR_SHOW_TRIGGER = "app_circle_bar_show_trigger";
 
-		/**
-		 * show clear all recents button
-		 * @hide
-		 */
-		public static final String SHOW_CLEAR_RECENTS_BUTTON = "clear_recents_button";
+        /**
+         * show clear all recents button
+         * @hide
+         */
+        public static final String SHOW_CLEAR_RECENTS_BUTTON = "clear_recents_button";
 
-		/**
-		 * location of the clear all rectents button
-		 * @hide
-		 */
-		public static final String CLEAR_RECENTS_BUTTON_LOCATION = "clear_recents_button_location";
+        /**
+         * location of the clear all rectents button
+         * @hide
+         */
+        public static final String CLEAR_RECENTS_BUTTON_LOCATION = "clear_recents_button_location";
 
-		/**
-		 * whether which Ram Usage Bar mode is used on recent switcher
-		 * 0 = none, 1 = only app use, 2 = app and cache use, 3 = app, cache and system use
-		 * @hide
-		 */
-		public static final String RECENTS_RAM_BAR_MODE = "recents_ram_bar_mode";
+        /**
+         * whether which Ram Usage Bar mode is used on recent switcher
+         * 0 = none, 1 = only app use, 2 = app and cache use, 3 = app, cache and system use
+         * @hide
+         */
+        public static final String RECENTS_RAM_BAR_MODE = "recents_ram_bar_mode";
 
-		/**
-		 * Ram Usage Bar system mem color
-		 * @hide
-		 */
-		public static final String RECENTS_RAM_BAR_MEM_COLOR = "recents_ram_bar_mem_color";
+        /**
+         * Ram Usage Bar system mem color
+         * @hide
+         */
+        public static final String RECENTS_RAM_BAR_MEM_COLOR = "recents_ram_bar_mem_color";
 
-		/**
-		 * Ram Usage Bar cached mem color
-		 * @hide
-		 */
-		public static final String RECENTS_RAM_BAR_CACHE_COLOR = "recents_ram_bar_cache_color";
+        /**
+         * Ram Usage Bar cached mem color
+         * @hide
+         */
+        public static final String RECENTS_RAM_BAR_CACHE_COLOR = "recents_ram_bar_cache_color";
 
-		/**
-		 * Ram Usage Bar app mem color
-		 * @hide
-		 */
-		public static final String RECENTS_RAM_BAR_ACTIVE_APPS_COLOR = "recents_ram_bar_active_apps_color";
+        /**
+         * Ram Usage Bar app mem color
+         * @hide
+         */
+        public static final String RECENTS_RAM_BAR_ACTIVE_APPS_COLOR = "recents_ram_bar_active_apps_color";
 
         /**
          * Network traffic indicator, goes from least to greatest significant bitwise
@@ -4933,43 +4896,66 @@ public final class Settings {
          */
         public static final String STATUSBAR_CLOCK_FONT_STYLE = "statusbar_clock_font_style";
 
-		/**
-		 * Show the pending notification counts as overlays on the status bar
-		 * @hide
-		 */
-		public static final String STATUS_BAR_NOTIFICATION_COUNT = "status_bar_notification_count";
+        /**
+         * Show the pending notification counts as overlays on the status bar
+         * @hide
+         */
+        public static final String STATUS_BAR_NOTIFICATION_COUNT = "status_bar_notification_count";
 
-		/**
-		 * Whether to show the signal text or signal bars
-		 * @hide
-		 */
-		public static final String STATUS_BAR_SIGNAL_TEXT = "status_bar_signal";
+        /**
+         * Whether to show the signal text or signal bars
+         * @hide
+         */
+        public static final String STATUS_BAR_SIGNAL_TEXT = "status_bar_signal";
+        
+        /**
+        * Status bar color
+        * @hide
+        */
+        public static final String CUSTOM_STATUS_BAR_COLOR = "custom_status_bar_color";
 
-		/**
-		 * Whether to show the battery bar
-		 * @hide
-		 */
-		public static final String STATUSBAR_BATTERY_BAR = "statusbar_battery_bar";
+        /** @hide */
+        public static final String STATUS_BAR_OPAQUE_COLOR = "status_bar_opaque_color";
+        /** @hide */
+        public static final String STATUS_BAR_SEMI_TRANS_COLOR = "status_bar_semi_trans_color";
 
-		/**
-		 * @hide
-		 */
-		public static final String STATUSBAR_BATTERY_BAR_COLOR = "statusbar_battery_bar_color";
+        /**
+        * Status icon color
+        * @hide
+        */
+        public static final String CUSTOM_SYSTEM_ICON_COLOR = "custom_system_icon_color";
 
-		/**
-		 * @hide
-		 */
-		public static final String STATUSBAR_BATTERY_BAR_THICKNESS = "statusbar_battery_bar_thickness";
+        /** @hide */
+        public static final String SYSTEM_ICON_COLOR = "system_icon_color";
 
-		/**
-		 * @hide
-		 */
-		public static final String STATUSBAR_BATTERY_BAR_STYLE = "statusbar_battery_bar_style";
+        /** @hide */
+        public static final String CUSTOM_STATUS_BAR_APPLY = "custom_status_bar_apply";
 
-		/**
-		 * @hide
-		 */
-		public static final String STATUSBAR_BATTERY_BAR_ANIMATE = "statusbar_battery_bar_animate";
+        /**
+         * Whether to show the battery bar
+         * @hide
+         */
+        public static final String STATUSBAR_BATTERY_BAR = "statusbar_battery_bar";
+
+        /**
+         * @hide
+         */
+        public static final String STATUSBAR_BATTERY_BAR_COLOR = "statusbar_battery_bar_color";
+
+        /**
+         * @hide
+         */
+        public static final String STATUSBAR_BATTERY_BAR_THICKNESS = "statusbar_battery_bar_thickness";
+
+        /**
+         * @hide
+         */
+        public static final String STATUSBAR_BATTERY_BAR_STYLE = "statusbar_battery_bar_style";
+
+        /**
+         * @hide
+         */
+        public static final String STATUSBAR_BATTERY_BAR_ANIMATE = "statusbar_battery_bar_animate";
 
         /**
          * Custom Recent toggle
@@ -5473,6 +5459,32 @@ public final class Settings {
         public static final String HALO_TEXT_COLOR = "halo_text_color";
 
         /**
+         * Whether to disable the navigation bar when in immersive mode and IME is showing
+         *
+         * @hide
+         */
+        public static final String DISABLE_IME_NAVBAR = "disable_ime_navbar";
+
+        /**
+         * Whether wifi settings will connect to access point automatically
+         * 0 = automatically
+         * 1 = manually
+         * @hide
+         */
+        public static final String WIFI_AUTO_CONNECT_TYPE = "wifi_auto_connect_type";
+
+        /**
+         * Whether wifi settings will connect to access point automatically when
+         * network from mobile network transform to Wifi network
+         * 0 = automatically
+         * 1 = manually
+         * 2 = always ask
+         *
+         * @hide
+         */
+        public static final String DATA_TO_WIFI_CONNECT_TYPE = "data_to_wifi_connect_type";
+
+        /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
@@ -5912,6 +5924,7 @@ public final class Settings {
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_P2P_DEVICE_NAME);
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_SAVED_STATE);
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_SUPPLICANT_SCAN_INTERVAL_MS);
+            MOVED_TO_GLOBAL.add(Settings.Global.WIFI_SUPPLICANT_SCAN_INTERVAL_WFD_CONNECTED_MS);
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_SUSPEND_OPTIMIZATIONS_ENABLED);
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_WATCHDOG_ON);
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_WATCHDOG_POOR_NETWORK_TEST_ENABLED);
@@ -8682,6 +8695,13 @@ public final class Settings {
         */
        public static final String WIFI_SCAN_INTERVAL_WHEN_P2P_CONNECTED_MS =
                "wifi_scan_interval_p2p_connected_ms";
+
+       /**
+        * The intervel in milliseconds to scan at supplicant when wfd session
+        * @hide
+        */
+       public static final String WIFI_SUPPLICANT_SCAN_INTERVAL_WFD_CONNECTED_MS =
+                 "wifi_scan_intervel_wfd_connected_ms";
 
        /**
         * Whether the Wi-Fi watchdog is enabled.

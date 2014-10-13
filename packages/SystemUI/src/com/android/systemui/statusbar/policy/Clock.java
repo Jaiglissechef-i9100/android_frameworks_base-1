@@ -35,18 +35,13 @@ import android.text.style.RelativeSizeSpan;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
-
 import com.android.systemui.R;
 import com.android.systemui.DemoMode;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import libcore.icu.LocaleData;
 
@@ -96,6 +91,9 @@ public class Clock extends TextView implements DemoMode {
 
     private SettingsObserver mSettingsObserver;
 
+    private boolean mCustomColor;
+    private int systemColor;
+
     protected class SettingsObserver extends ContentObserver {
         SettingsObserver(Handler handler) {
             super(handler);
@@ -127,6 +125,12 @@ public class Clock extends TextView implements DemoMode {
             resolver.registerContentObserver(Settings.System
                     .getUriFor(Settings.System.STATUSBAR_CLOCK_DATE_FORMAT),
                     false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.CUSTOM_SYSTEM_ICON_COLOR), false,
+                    this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.SYSTEM_ICON_COLOR), false,
+                    this, UserHandle.USER_ALL);
             updateSettings();
         }
 
@@ -135,9 +139,6 @@ public class Clock extends TextView implements DemoMode {
             updateSettings();
         }
     }
-
-    private final Handler handler = new Handler();
-    TimerTask second;
 
     public Clock(Context context) {
         this(context, null);
@@ -270,11 +271,6 @@ public class Clock extends TextView implements DemoMode {
 
         String result = sdf.format(mCalendar.getTime());
 
-        if (Settings.System.getInt(mContext.getContentResolver(), Settings.System.CLOCK_USE_SECOND, 0) == 1) {
-            String temp = result;
-            result = String.format("%s:%02d", temp, new GregorianCalendar().get(Calendar.SECOND));
-        }
-
         if (mClockDateDisplay != CLOCK_DATE_DISPLAY_GONE) {
             Date now = new Date();
 
@@ -348,24 +344,6 @@ public class Clock extends TextView implements DemoMode {
         mAmPmStyle = is24hour ? AM_PM_STYLE_GONE : amPmStyle;
         mClockFormatString = "";
 
-        second = new TimerTask()
-        {
-            @Override
-            public void run()
-             {
-                Runnable updater = new Runnable()
-                  {        
-                   public void run()
-                   {     
-                       updateClock();
-                   }
-                  };
-                handler.post(updater);
-             }
-        };
-        Timer timer = new Timer();
-        timer.schedule(second, 0, 1001); 
-
         mClockStyle = Settings.System.getIntForUser(resolver,
                 Settings.System.STATUSBAR_CLOCK_STYLE, STYLE_CLOCK_RIGHT,
                 UserHandle.USER_CURRENT);
@@ -378,10 +356,16 @@ public class Clock extends TextView implements DemoMode {
         mClockFontStyle = Settings.System.getIntForUser(resolver,
                 Settings.System.STATUSBAR_CLOCK_FONT_STYLE, FONT_NORMAL,
                 UserHandle.USER_CURRENT);
+        mCustomColor = Settings.System.getIntForUser(resolver,
+                Settings.System.CUSTOM_SYSTEM_ICON_COLOR, 0,
+                UserHandle.USER_CURRENT) == 1;
 
         int defaultColor = getResources().getColor(R.color.status_bar_clock_color);
         int clockColor = Settings.System.getIntForUser(resolver,
                 Settings.System.STATUSBAR_CLOCK_COLOR, defaultColor,
+                UserHandle.USER_CURRENT);
+        int systemColor = Settings.System.getIntForUser(resolver,
+                Settings.System.SYSTEM_ICON_COLOR, defaultColor,
                 UserHandle.USER_CURRENT);
         if (clockColor == Integer.MIN_VALUE) {
             // flag to reset the color
@@ -389,7 +373,11 @@ public class Clock extends TextView implements DemoMode {
         }
 
         if (mAttached) {
-            setTextColor(clockColor);
+            if (mCustomColor) {
+                setTextColor(systemColor);
+            } else {
+                setTextColor(clockColor);
+            }
             getFontStyle(mClockFontStyle);
             updateClockVisibility();
             updateClock();

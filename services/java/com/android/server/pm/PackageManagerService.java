@@ -32,8 +32,11 @@ import static libcore.io.OsConstants.S_IXGRP;
 import static libcore.io.OsConstants.S_IROTH;
 import static libcore.io.OsConstants.S_IXOTH;
 
+import android.Manifest;
 import android.app.ComposedIconInfo;
 import android.content.res.AssetManager;
+import android.content.res.ThemeConfig;
+import android.content.res.ThemeManager;
 import android.util.Pair;
 import com.android.internal.app.IMediaContainerService;
 import com.android.internal.app.ResolverActivity;
@@ -449,7 +452,8 @@ public class PackageManagerService extends IPackageManager.Stub {
     final ActivityIntentResolver mReceivers =
             new ActivityIntentResolver();
 
-    final HashSet<String> mAllowances = new HashSet<String>();
+    final HashMap<Signature, HashSet<String>> mSignatureAllowances
+            = new HashMap<Signature, HashSet<String>>();
 
     // All available services, for your resolving pleasure.
     final ServiceIntentResolver mServices = new ServiceIntentResolver();
@@ -509,6 +513,8 @@ public class PackageManagerService extends IPackageManager.Stub {
             new HashMap<String, Pair<Integer, Long>>();
 
     private Map<String, Long> mAvailableCommonResources = new HashMap<String, Long>();
+
+    private ThemeConfig mBootThemeConfig;
 
     // Set of pending broadcasts for aggregating enable/disable of components.
     static class PendingPackageBroadcasts {
@@ -1409,6 +1415,8 @@ public class PackageManagerService extends IPackageManager.Stub {
             }
         }
 
+        mBootThemeConfig = ThemeUtils.getBootThemeDirty();
+
         // Collect vendor overlay packages.
         // (Do this before scanning any apps.)
         // For security and version matching reason, only consider
@@ -1628,6 +1636,13 @@ public class PackageManagerService extends IPackageManager.Stub {
             // can downgrade to reader
             mSettings.writeLPr();
 
+            if (SELinuxMMAC.shouldRestorecon()) {
+                Slog.i(TAG, "Relabeling of /data/data and /data/user issued.");
+                if (mInstaller.restoreconData()) {
+                    SELinuxMMAC.setRestoreconDone();
+                }
+            }
+
             EventLog.writeEvent(EventLogTags.BOOT_PROGRESS_PMS_READY,
                     SystemClock.uptimeMillis());
 
@@ -1839,15 +1854,32 @@ public class PackageManagerService extends IPackageManager.Stub {
                         XmlUtils.skipCurrentTag(parser);
                         continue;
                     }
-                    String sharedUserId = parser.getAttributeValue(null, "sharedUserId");
-                    if (sharedUserId == null) {
+                    String signature = parser.getAttributeValue(null, "signature");
+                    if (signature == null) {
                         Slog.w(TAG,
-                                "<allow-permission> without uid at "
+                                "<allow-permission> without signature at "
                                         + parser.getPositionDescription());
                         XmlUtils.skipCurrentTag(parser);
                         continue;
                     }
-                    mAllowances.add(sharedUserId + ":" + perm);
+                    Signature sig = null;
+                    try {
+                        sig = new Signature(signature);
+                    } catch (IllegalArgumentException e) {
+                        // sig will be null so we will log it below
+                    }
+                    if (sig != null) {
+                        HashSet<String> perms = mSignatureAllowances.get(sig);
+                        if (perms == null) {
+                            perms = new HashSet<String>();
+                            mSignatureAllowances.put(sig, perms);
+                        }
+                        perms.add(perm);
+                    } else {
+                        Slog.w(TAG,
+                                "<allow-permission> with bad signature at "
+                                        + parser.getPositionDescription());
+                    }
                     XmlUtils.skipCurrentTag(parser);
 
                 } else if ("library".equals(name)) {
@@ -2587,6 +2619,16 @@ public class PackageManagerService extends IPackageManager.Stub {
                         + ". It is required by the application");
             }
         }
+    }
+
+    private boolean isAllowedSignature(PackageParser.Package pkg, String permissionName) {
+        for (Signature pkgSig : pkg.mSignatures) {
+            HashSet<String> perms = mSignatureAllowances.get(pkgSig);
+            if (perms != null && perms.contains(permissionName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void grantPermission(String packageName, String permissionName) {
@@ -4257,7 +4299,7 @@ public class PackageManagerService extends IPackageManager.Stub {
         for (int user : users) {
             if (user != 0) {
                 res = mInstaller.createUserData(packageName,
-                        UserHandle.getUid(user, uid), user);
+                        UserHandle.getUid(user, uid), user, seinfo);
                 if (res < 0) {
                     return res;
                 }
@@ -5379,19 +5421,26 @@ public class PackageManagerService extends IPackageManager.Stub {
 
             pkgSetting.setTimeStamp(scanFileTime);
 
+            final boolean isBootScan = (scanMode & SCAN_BOOTING) != 0;
             // Generate resources & idmaps if pkg is NOT a theme
             // We must compile resources here because during the initial boot process we may get
             // here before a default theme has had a chance to compile its resources
             if (pkg.mOverlayTargets.isEmpty() && mOverlays.containsKey(pkg.packageName)) {
                 HashMap<String, PackageParser.Package> themes = mOverlays.get(pkg.packageName);
                 for(PackageParser.Package themePkg : themes.values()) {
-                    try {
-                        compileResourcesAndIdmapIfNeeded(pkg, themePkg);
-                    } catch(Exception e) {
-                        // Do not stop a pkg installation just because of one bad theme
-                        // Also we don't break here because we should try to compile other themes
-                        Log.e(TAG, "Unable to compile " + themePkg.packageName
-                                + " for target " + pkg.packageName, e);
+                    if (!isBootScan || (mBootThemeConfig != null &&
+                            (themePkg.packageName.equals(mBootThemeConfig.getOverlayPkgName()) ||
+                            themePkg.packageName.equals(
+                                    mBootThemeConfig.getOverlayPkgNameForApp(pkg.packageName))))) {
+                        try {
+                            compileResourcesAndIdmapIfNeeded(pkg, themePkg);
+                        } catch (Exception e) {
+                            // Do not stop a pkg installation just because of one bad theme
+                            // Also we don't break here because we should try to compile other
+                            // themes
+                            Log.e(TAG, "Unable to compile " + themePkg.packageName
+                                    + " for target " + pkg.packageName, e);
+                        }
                     }
                 }
             }
@@ -5401,39 +5450,53 @@ public class PackageManagerService extends IPackageManager.Stub {
                 Exception failedException = null;
 
                 insertIntoOverlayMap(target, pkg);
-                try {
-                    compileResourcesAndIdmapIfNeeded(mPackages.get(target), pkg);
-                } catch(IdmapException e) {
-                    failedException = e;
-                    mLastScanError = PackageManager.INSTALL_FAILED_THEME_IDMAP_ERROR;
-                } catch(AaptException e) {
-                    failedException = e;
-                    mLastScanError = PackageManager.INSTALL_FAILED_THEME_AAPT_ERROR;
-                } catch(Exception e) {
-                    failedException = e;
-                    mLastScanError = PackageManager.INSTALL_FAILED_THEME_UNKNOWN_ERROR;
-                }
+                if (mBootThemeConfig != null &&
+                        (pkg.packageName.equals(mBootThemeConfig.getOverlayPkgName()) ||
+                        pkg.packageName.equals(
+                                mBootThemeConfig.getOverlayPkgNameForApp(target)))) {
+                    try {
+                        compileResourcesAndIdmapIfNeeded(mPackages.get(target), pkg);
+                    } catch (IdmapException e) {
+                        failedException = e;
+                        mLastScanError = PackageManager.INSTALL_FAILED_THEME_IDMAP_ERROR;
+                    } catch (AaptException e) {
+                        failedException = e;
+                        mLastScanError = PackageManager.INSTALL_FAILED_THEME_AAPT_ERROR;
+                    } catch (Exception e) {
+                        failedException = e;
+                        mLastScanError = PackageManager.INSTALL_FAILED_THEME_UNKNOWN_ERROR;
+                    }
 
-                if (failedException != null) {
-                    // Theme install failed, cleanup!
-                    Log.w(TAG, "Unable to process theme " + pkgName, failedException);
-                    uninstallThemeForAllApps(pkg);
-                    deletePackageLI(pkg.packageName, null, true, null, null, 0, null, false);
-                    return null;
+                    if (failedException != null) {
+                        // Theme install failed, cleanup!
+                        Log.w(TAG, "Unable to process theme " + pkgName, failedException);
+                        uninstallThemeForAllApps(pkg);
+                        deletePackageLI(pkg.packageName, null, true, null, null, 0, null, false);
+                        return null;
+                    }
+                } else if (!isBootScan) {
+                    // Pass this off to the ThemeService for processing
+                    ThemeManager tm =
+                            (ThemeManager) mContext.getSystemService(Context.THEME_SERVICE);
+                    if (tm != null) {
+                        tm.processThemeResources(pkg.packageName);
+                    }
                 }
             }
 
             //Icon Packs need aapt too
-            //TODO: No need to run aapt on icons for every startup...
-            if (isIconCompileNeeded(pkg)) {
-                try {
-                    ThemeUtils.createCacheDirIfNotExists();
-                    ThemeUtils.createIconDirIfNotExists(pkg.packageName);
-                    compileIconPack(pkg);
-                } catch(Exception e) {
-                    mLastScanError = PackageManager.INSTALL_FAILED_THEME_AAPT_ERROR;
-                    uninstallThemeForAllApps(pkg);
-                    deletePackageLI(pkg.packageName, null, true, null, null, 0, null, false);
+            if ((mBootThemeConfig != null &&
+                    pkg.packageName.equals(mBootThemeConfig.getIconPackPkgName()))) {
+                if (isIconCompileNeeded(pkg)) {
+                    try {
+                        ThemeUtils.createCacheDirIfNotExists();
+                        ThemeUtils.createIconDirIfNotExists(pkg.packageName);
+                        compileIconPack(pkg);
+                    } catch (Exception e) {
+                        mLastScanError = PackageManager.INSTALL_FAILED_THEME_AAPT_ERROR;
+                        uninstallThemeForAllApps(pkg);
+                        deletePackageLI(pkg.packageName, null, true, null, null, 0, null, false);
+                    }
                 }
             }
         }
@@ -6387,12 +6450,11 @@ public class PackageManagerService extends IPackageManager.Stub {
                 bp.packageSetting.signatures.mSignatures, pkg.mSignatures)
                         == PackageManager.SIGNATURE_MATCH)
                 || (compareSignatures(mPlatformPackage.mSignatures, pkg.mSignatures)
-                        == PackageManager.SIGNATURE_MATCH)
-                || (pkg.mSharedUserId != null
-                        && mAllowances.contains(pkg.mSharedUserId + ":" + perm));
+                        == PackageManager.SIGNATURE_MATCH);
         if (!allowed && (bp.protectionLevel
                 & PermissionInfo.PROTECTION_FLAG_SYSTEM) != 0) {
-            if (isSystemApp(pkg)) {
+            boolean allowedSig = isAllowedSignature(pkg, perm);
+            if (isSystemApp(pkg) || allowedSig) {
                 // For updated system applications, a system permission
                 // is granted only if it had been defined by the original application.
                 if (isUpdatedSystemApp(pkg)) {
@@ -6425,7 +6487,7 @@ public class PackageManagerService extends IPackageManager.Stub {
                         }
                     }
                 } else {
-                    allowed = isPrivilegedApp(pkg);
+                    allowed = isPrivilegedApp(pkg) || allowedSig;
                 }
             }
         }
@@ -12510,6 +12572,107 @@ public class PackageManagerService extends IPackageManager.Stub {
     }
 
     @Override
+    public void updateIconMapping(String pkgName) {
+        mContext.enforceCallingOrSelfPermission(
+                android.Manifest.permission.CHANGE_CONFIGURATION,
+                "could not update icon mapping because caller does not have change config permission");
+
+        synchronized (mPackages) {
+            ThemeUtils.clearIconCache();
+            if (pkgName == null) {
+                clearIconMapping();
+                return;
+            }
+            mIconPackHelper = new IconPackHelper(mContext);
+            try {
+                mIconPackHelper.loadIconPack(pkgName);
+            } catch(NameNotFoundException e) {
+                Log.e(TAG, "Unable to find icon pack: " + pkgName);
+                clearIconMapping();
+                return;
+            }
+
+            for (Activity activity : mActivities.mActivities.values()) {
+                activity.info.themedIcon =
+                        mIconPackHelper.getResourceIdForActivityIcon(activity.info);
+            }
+
+            for (Package pkg : mPackages.values()) {
+                pkg.applicationInfo.themedIcon =
+                        mIconPackHelper.getResourceIdForApp(pkg.packageName);
+            }
+        }
+    }
+
+    private void clearIconMapping() {
+        mIconPackHelper = null;
+        for (Activity activity : mActivities.mActivities.values()) {
+            activity.info.themedIcon = 0;
+        }
+
+        for (Package pkg : mPackages.values()) {
+            pkg.applicationInfo.themedIcon = 0;
+        }
+    }
+
+    @Override
+    public ComposedIconInfo getComposedIconInfo() {
+        return mIconPackHelper != null ? mIconPackHelper.getComposedIconInfo() : null;
+    }
+
+    @Override
+    public int processThemeResources(String themePkgName) {
+        mContext.enforceCallingOrSelfPermission(
+                Manifest.permission.ACCESS_THEME_MANAGER, null);
+        PackageParser.Package pkg = mPackages.get(themePkgName);
+        if (pkg == null) {
+            Log.w(TAG, "Unable to get pkg for processing " + themePkgName);
+            return 0;
+        }
+
+        // Process icons
+        if (isIconCompileNeeded(pkg)) {
+            try {
+                ThemeUtils.createCacheDirIfNotExists();
+                ThemeUtils.createIconDirIfNotExists(pkg.packageName);
+                compileIconPack(pkg);
+            } catch (Exception e) {
+                uninstallThemeForAllApps(pkg);
+                deletePackageX(themePkgName, getCallingUid(), PackageManager.DELETE_ALL_USERS);
+                return PackageManager.INSTALL_FAILED_THEME_AAPT_ERROR;
+            }
+        }
+
+        int errorCode = 0;
+        // Generate Idmaps and res tables if pkg is a theme
+        for(String target : pkg.mOverlayTargets) {
+            Exception failedException = null;
+            try {
+                compileResourcesAndIdmapIfNeeded(mPackages.get(target), pkg);
+            } catch (IdmapException e) {
+                failedException = e;
+                errorCode = PackageManager.INSTALL_FAILED_THEME_IDMAP_ERROR;
+            } catch (AaptException e) {
+                failedException = e;
+                errorCode = PackageManager.INSTALL_FAILED_THEME_AAPT_ERROR;
+            } catch (Exception e) {
+                failedException = e;
+                errorCode = PackageManager.INSTALL_FAILED_THEME_UNKNOWN_ERROR;
+            }
+
+            if (failedException != null) {
+                Log.e(TAG, "Unable to process theme, uninstalling " + pkg.packageName,
+                      failedException);
+                uninstallThemeForAllApps(pkg);
+                deletePackageX(themePkgName, getCallingUid(), PackageManager.DELETE_ALL_USERS);
+                return errorCode;
+            }
+        }
+
+        return 0;
+    }
+
+    @Override
     public void setComponentProtectedSetting(ComponentName componentName, boolean newState,
             int userId) {
         enforceCrossUserPermission(Binder.getCallingUid(), userId, false, "set protected");
@@ -12570,53 +12733,5 @@ public class PackageManagerService extends IPackageManager.Stub {
         } finally {
             Binder.restoreCallingIdentity(callingId);
         }
-    }
-
-    public void updateIconMapping(String pkgName) {
-        mContext.enforceCallingOrSelfPermission(
-                android.Manifest.permission.CHANGE_CONFIGURATION,
-                "could not update icon mapping because caller does not have change config permission");
-
-        synchronized (mPackages) {
-            ThemeUtils.clearIconCache();
-            if (pkgName == null) {
-                clearIconMapping();
-                return;
-            }
-            mIconPackHelper = new IconPackHelper(mContext);
-            try {
-                mIconPackHelper.loadIconPack(pkgName);
-            } catch(NameNotFoundException e) {
-                Log.e(TAG, "Unable to find icon pack: " + pkgName);
-                clearIconMapping();
-                return;
-            }
-
-            for (Activity activity : mActivities.mActivities.values()) {
-                activity.info.themedIcon =
-                        mIconPackHelper.getResourceIdForActivityIcon(activity.info);
-            }
-
-            for (Package pkg : mPackages.values()) {
-                pkg.applicationInfo.themedIcon =
-                        mIconPackHelper.getResourceIdForApp(pkg.packageName);
-            }
-        }
-    }
-
-    private void clearIconMapping() {
-        mIconPackHelper = null;
-        for (Activity activity : mActivities.mActivities.values()) {
-            activity.info.themedIcon = 0;
-        }
-
-        for (Package pkg : mPackages.values()) {
-            pkg.applicationInfo.themedIcon = 0;
-        }
-    }
-
-    @Override
-    public ComposedIconInfo getComposedIconInfo() {
-        return mIconPackHelper != null ? mIconPackHelper.getComposedIconInfo() : null;
     }
 }

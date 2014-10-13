@@ -240,7 +240,7 @@
     <color name="trds_text">#ff000000</color>
 
     <!-- Volume panel -->
-    <color name="volume_panel_bg">#cc111111</color>
+    <color name="volume_panel_bg">#80000000</color>
 
     <!-- Action(s) list background used on expanded notifications -->
     <drawable name="notification_action_list_bg">#00000000</drawable>

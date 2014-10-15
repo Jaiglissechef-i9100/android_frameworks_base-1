@@ -268,19 +268,15 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
                 }
             }
 
-	    int mHaloEnabled = (Settings.System.getInt(mContext.getContentResolver(), Settings.System.HALO_ENABLED, 0));
-
             holder.thumbnailView.setTag(td);
             holder.thumbnailView.setOnLongClickListener(new OnLongClickDelegate(convertView));
 
-	    if(mHaloEnabled != 1){
-		    holder.thumbnailView.setOnTouchListener(new OnTouchListener() {
-		        @Override
-		        public boolean onTouch(View v, MotionEvent m) {
-		            return handleThumbnailTouch(m, holder.thumbnailView);
-		        }
-		    });
-	    }
+	    holder.thumbnailView.setOnTouchListener(new OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent m) {
+                    return handleThumbnailTouch(m, holder.thumbnailView);
+                }
+            });
             holder.taskDescription = td;
             return convertView;
         }
@@ -863,19 +859,15 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
         boolean floating = (intent.getFlags() & Intent.FLAG_FLOATING_WINDOW) == Intent.FLAG_FLOATING_WINDOW;
         if (ad.taskId >= 0 && !floating) {
             // This is an active task; it should just go to the foreground.
-
-	    int mHaloEnabled = (Settings.System.getInt(mContext.getContentResolver(), Settings.System.HALO_ENABLED, 0));
-
             // If that task was split viewed, a normal press wil resume it to
             // normal fullscreen view
-	    if(mHaloEnabled != 1){
-		    IWindowManager wm = (IWindowManager) WindowManagerGlobal.getWindowManagerService();
-		    try {
-		        if (DEBUG) Log.v(TAG, "Restoring window full screen after split, because of normal tap");
-		        wm.setTaskSplitView(ad.taskId, false);
-		    } catch (RemoteException e) {
-		        Log.e(TAG, "Could not setTaskSplitView to fullscreen", e);
-		    }
+            IWindowManager wm = (IWindowManager) WindowManagerGlobal.getWindowManagerService();
+            try {
+                if (DEBUG) Log.v(TAG, "Restoring window full screen after split, because of normal tap");
+                wm.setTaskSplitView(ad.taskId, false);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Could not setTaskSplitView to fullscreen", e);
+            }
 	    }
             am.moveTaskToFront(ad.taskId, ActivityManager.MOVE_TASK_WITH_HOME,
                     opts);
@@ -1118,13 +1110,7 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
 
         mPopup = popup;
 
-	int mHaloEnabled = (Settings.System.getInt(mContext.getContentResolver(), Settings.System.HALO_ENABLED, 0));
-
-	if(mHaloEnabled != 1){
-        	popup.getMenuInflater().inflate(R.menu.recent_popup_menu_split, popup.getMenu());
-	}else{
-		popup.getMenuInflater().inflate(R.menu.recent_popup_menu, popup.getMenu());
-	}
+	popup.getMenuInflater().inflate(R.menu.recent_popup_menu, popup.getMenu());
 
         final ContentResolver cr = mContext.getContentResolver();
         if (Settings.Secure.getInt(cr,
@@ -1156,8 +1142,6 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
         }
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
-
-		int mHaloEnabled = (Settings.System.getInt(mContext.getContentResolver(), Settings.System.HALO_ENABLED, 0));
 
                 if (item.getItemId() == R.id.recent_remove_item) {
                     ((ViewGroup) mRecentsContainer).removeViewInLayout(selectedView);
@@ -1195,7 +1179,7 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
                     }
                 } else if (item.getItemId() == R.id.recent_launch_floating) {
                     launchFloating(selectedView);
-                } else if (item.getItemId() == R.id.recent_add_split_view && mHaloEnabled != 1) {
+                } else if (item.getItemId() == R.id.recent_add_split_view) {
                     // Either start a new activity in split view, or move the current task
                     // to front, but resized
                     ViewHolder holder = (ViewHolder)selectedView.getTag();

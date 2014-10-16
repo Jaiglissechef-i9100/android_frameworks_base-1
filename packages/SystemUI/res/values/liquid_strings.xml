@@ -324,6 +324,14 @@
     <string name="halo_signal_bars_1">ONE BAR</string>
     <string name="halo_signal_bars_none">NO BARS</string>
 
+    <!-- Weather tile panel String -->
+    <string name="need_to_update_weather">Tap to update</string>
+    <string name="no_weather_file">Not found weather file</string>
+    <string name="weather_notify">Notification</string>
+    <string name="weather_ok">OK</string>
+    <string name="weather_link">Shortcut</string>
+    <string name="weather_dialog_msg">Your Phone maybe off Weather Panel in cLock or Not save Weather data file\nYou need Switch on Display Weather in Long press Weather quick tile > Clock widgets > Weather panel</string>
+
     <!-- Weather -->
     <string name="weatherpanel_slash">/</string>
     <string name="weather_0">Tornado</string>

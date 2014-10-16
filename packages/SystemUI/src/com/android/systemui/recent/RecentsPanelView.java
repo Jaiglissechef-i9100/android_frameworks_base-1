@@ -868,7 +868,6 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
             } catch (RemoteException e) {
                 Log.e(TAG, "Could not setTaskSplitView to fullscreen", e);
             }
-	    }
             am.moveTaskToFront(ad.taskId, ActivityManager.MOVE_TASK_WITH_HOME,
                     opts);
 	    

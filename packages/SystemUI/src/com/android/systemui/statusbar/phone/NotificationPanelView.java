@@ -63,7 +63,6 @@ public class NotificationPanelView extends PanelView {
     int mHandleBarHeight;
     View mHandleView;
     ImageView mBackground;
-    int mFingers;
     boolean mOkToFlip;
 
     private float mGestureStartX;

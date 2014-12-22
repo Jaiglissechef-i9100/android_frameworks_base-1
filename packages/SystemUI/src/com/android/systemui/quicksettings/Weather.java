@@ -47,7 +47,7 @@ import com.android.systemui.statusbar.phone.QuickSettingsController;
 public class Weather extends QuickSettingsTile {
 
 	private final String TAG = "WeatherTile";
-	private final String PATH="/sdcard/Android/data/weather.txt";
+	private final String PATH="/sdcard0/Android/data/weather.txt";
 
 	public Weather(Context context, QuickSettingsController qsc, Handler mhandler) {
 		super(context, qsc, R.layout.quick_settings_tile_weather);
